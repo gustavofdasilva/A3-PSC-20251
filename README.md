@@ -91,3 +91,9 @@ CREATE TABLE banco (
     nome varchar(255) not null,
     PRIMARY KEY (id)
 );
+
+Sugestões do professor:
+- Banir conta com pontuação que determina se é golpe ou não:
+- 	Se for banida, alerta pra transferencia e tal
+- Pedir pra validar caso peça estorno de um pix que alguém mandou pra vítima
+- Adicionar tipo de conta, conta corrente e tal 
