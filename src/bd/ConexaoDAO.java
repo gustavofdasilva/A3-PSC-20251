@@ -5,13 +5,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class ConexaoDAO {
-    // private String url = "jdbc:mysql://localhost:3306/db_a3";
-    // private String user = "root";
-    // private String pass = "root";
-
-    private String url = System.getenv("DB_URL");
-    private String user = System.getenv("DB_USER");
-    private String pass = System.getenv("DB_PASS");
+    private String url = "jdbc:mysql://localhost:3306/db_a3";
+    private String user = "root";
+    private String pass = "root";
     
     private Connection conn;
 
