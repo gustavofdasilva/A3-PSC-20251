@@ -1,17 +1,26 @@
 package operacoes.transferencia;
 import java.sql.Time;
 
-import operacoes.Operacao;
+import operacoes.OperacaoDTO;
 
-public class TransferenciaDTO extends Operacao {
+public class TransferenciaDTO extends OperacaoDTO {
 
     private int idUsuarioRemetente;
     private int idUsuarioDestinatario;
-    
-    public TransferenciaDTO(int id, Time dtOperacao, int idUsuarioRemetente, int idUsuarioDestinatario) {
-        super(id, dtOperacao);
-        this.idUsuarioRemetente = idUsuarioRemetente;
+    private int quantia;
+
+    public TransferenciaDTO(String tipo, int id, int idUsuario, Time dtOperacao, int idUsuarioDestinatario, int quantia) {
+        super(id, idUsuario, dtOperacao, tipo);
         this.idUsuarioDestinatario = idUsuarioDestinatario;
+        this.quantia = quantia;
+    }
+
+    public int getQuantia() {
+        return quantia;
+    }
+
+    public void setQuantia(int quantia) {
+        this.quantia = quantia;
     }
 
     public int getIdUsuarioRemetente() {

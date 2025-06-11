@@ -7,6 +7,8 @@ import operacoes.saque.SaqueDAO;
 import operacoes.transferencia.TransferenciaDAO;
 import usuario.UsuarioDAO;
 import usuario.UsuarioDTO;
+import usuario.extrato.Extrato;
+import utils.FormatarString;
 import utils.Log;
 
 public class ComandosUsuario extends Comandos {
@@ -23,6 +25,8 @@ public class ComandosUsuario extends Comandos {
         UsuarioDTO usuarioDTO = usuarioDAO.autenticarUsuario(usuarioLogado.getCpf(), usuarioLogado.getSenha());
 
         this.usuarioLogado = usuarioDTO;
+
+        String saldoFormatado = FormatarString.numeroParaReais(this.usuarioLogado.getSaldo());
         System.out.println("---------------------------------");
         System.out.println("INFORMAÇÕES DO USUÁRIO");
         System.out.println("Nome: " + usuarioDTO.getNome());
@@ -30,7 +34,7 @@ public class ComandosUsuario extends Comandos {
         System.out.println("Telefone: " + usuarioDTO.getTelefone());
         System.out.println("CPF: " + usuarioDTO.getCpf());
         System.out.println("Banco: " + usuarioDTO.getBanco());
-        System.out.println("Saldo: R$" + usuarioDTO.getSaldo());
+        System.out.println("Saldo: " + saldoFormatado);
         System.out.println("---------------------------------");
     }
     
@@ -41,10 +45,9 @@ public class ComandosUsuario extends Comandos {
         System.out.println("1. Transferência");
         System.out.println("2. Saque");
         System.out.println("3. Depósito");
-        System.out.println("4. Ver saldo");
-        System.out.println("5. Extrato");
-        System.out.println("6. Fazer Pix");
-        System.out.println("7. Pagar boleto");
+        System.out.println("4. Extrato");
+        System.out.println("5. Fazer Pix");
+        System.out.println("6. Pagar boleto");
         System.out.println("X. Sair");
         System.out.println("---------------------------------");
     }
@@ -68,15 +71,12 @@ public class ComandosUsuario extends Comandos {
                     acaoDeposito(mainScanner);
                     break;
                 case "4":
-                    // Lógica para ver saldo
+                    Extrato.exibirExtrato(usuarioLogado.getId());
                     break;
                 case "5":
-                    // Lógica para extrato
-                    break;
-                case "6":
                     // Lógica para fazer Pix
                     break;
-                case "7":
+                case "6":
                     // Lógica para pagar boleto
                     break;
                 
@@ -161,15 +161,6 @@ public class ComandosUsuario extends Comandos {
     }
     
     public void acaoLogarUsuario(Scanner scanner) {
-        //!Transferencia
-        //Saque
-        //Depósito
-        //Ver saldo
-        //Extrato
-        //!Meus lançamentos - entradas e saídas
-        //!Fazer pix
-        //Pagar boleto
-
         System.out.println("Você escolheu logar um usuário.");
         System.out.print("Digite o cpf do usuário: ");
         String cpf = scanner.nextLine();

@@ -5,7 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import bd.BaseDAO;
-import usuario.extrato.ExtratoDTO;
+import usuario.extrato.Extrato;
 import utils.Log;
 
 public class UsuarioDAO extends BaseDAO{
@@ -59,7 +59,7 @@ public class UsuarioDAO extends BaseDAO{
         }
     }
 
-    public ExtratoDTO carregarExtrato(UsuarioDTO usuario) {
+    public Extrato carregarExtrato(UsuarioDTO usuario) {
 
         return null;
     }

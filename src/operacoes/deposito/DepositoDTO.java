@@ -2,27 +2,17 @@ package operacoes.deposito;
 
 import java.sql.Time;
 
-import operacoes.Operacao;
+import operacoes.OperacaoDTO;
 
-public class DepositoDTO extends Operacao {
+public class DepositoDTO extends OperacaoDTO {
 
-
-    private int idUsuario;
     private double novoSaldo;
     private double valorDepositado;
     
-    public DepositoDTO(int id, Time dtOperacao, double novoSaldo, double valorDepositado) {
-        super(id, dtOperacao);
+    public DepositoDTO(String tipo, int id, int idUsuario, Time dtOperacao, double novoSaldo, double valorDepositado) {
+        super(id, idUsuario, dtOperacao, tipo);
         this.novoSaldo = novoSaldo;
         this.valorDepositado = valorDepositado;
-    }
-
-    public int getIdUsuario() {
-        return idUsuario;
-    }
-
-    public void setIdUsuario(int idUsuario) {
-        this.idUsuario = idUsuario;
     }
 
     public double getNovoSaldo() {

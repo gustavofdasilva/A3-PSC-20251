@@ -1,27 +1,17 @@
 package operacoes.saque;
 import java.sql.Time;
 
-import operacoes.Operacao;
+import operacoes.OperacaoDTO;
 
-public class SaqueDTO extends Operacao {
+public class SaqueDTO extends OperacaoDTO {
 
-
-    private int idUsuario;
     private double novoSaldo;
     private double valorSacado;
     
-    public SaqueDTO(int id, Time dtOperacao, double novoSaldo, double valorSacado) {
-        super(id, dtOperacao);
+    public SaqueDTO(String tipo, int id, int idUsuario, Time dtOperacao, double novoSaldo, double valorSacado) {
+        super(id, idUsuario, dtOperacao, tipo);
         this.novoSaldo = novoSaldo;
         this.valorSacado = valorSacado;
-    }
-
-    public int getIdUsuario() {
-        return idUsuario;
-    }
-
-    public void setIdUsuario(int idUsuario) {
-        this.idUsuario = idUsuario;
     }
 
     public double getNovoSaldo() {

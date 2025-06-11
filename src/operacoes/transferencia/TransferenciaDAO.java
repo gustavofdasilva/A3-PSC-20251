@@ -31,9 +31,10 @@ public class TransferenciaDAO extends BaseDAO {
 
             //Inicia transação para, se caso falhe, não grave logs lixo no banco de dados
             conn.setAutoCommit(false);
-            sql = "INSERT INTO operacao (tipo) VALUES (?)";
+            sql = "INSERT INTO operacao (tipo, id_usuario) VALUES (?, ?)";
             stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             stmt.setString(1, "transferencia");
+            stmt.setInt(2, usuarioRementente.getId());
             stmt.execute();
             rs = stmt.getGeneratedKeys();
             if(rs.next()) {
@@ -46,12 +47,11 @@ public class TransferenciaDAO extends BaseDAO {
                 return;
             }
 
-            sql = "INSERT INTO transferencia (id, id_usuario_remetente, id_usuario_destinatario, quantia) VALUES (?, ?, ?, ?)";
+            sql = "INSERT INTO transferencia (id, id_usuario_destinatario, quantia) VALUES (?, ?, ?)";
             stmt = conn.prepareStatement(sql);
             stmt.setInt(1, novoId);
-            stmt.setInt(2, usuarioRementente.getId());
-            stmt.setInt(3, idUsuarioDestinatario);
-            stmt.setDouble(4, quantia);
+            stmt.setInt(2, idUsuarioDestinatario);
+            stmt.setDouble(3, quantia);
             stmt.execute();
 
             //Realiza a transferencia

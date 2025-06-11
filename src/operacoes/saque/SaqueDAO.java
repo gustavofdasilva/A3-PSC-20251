@@ -23,9 +23,10 @@ public class SaqueDAO extends BaseDAO {
 
             //Inicia transação para, se caso falhe, não grave logs lixo no banco de dados
             conn.setAutoCommit(false);
-            String sql = "INSERT INTO operacao (tipo) VALUES (?)";
+            String sql = "INSERT INTO operacao (tipo, id_usuario) VALUES (?, ?)";
             PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             stmt.setString(1, "saque");
+            stmt.setInt(2, usuario.getId());
             stmt.execute();
             ResultSet rs = stmt.getGeneratedKeys();
             if(rs.next()) {
@@ -56,12 +57,11 @@ public class SaqueDAO extends BaseDAO {
                 novoSaldo = rs.getDouble("saldo");
             }
 
-            sql = "INSERT INTO saque (id, id_usuario, novo_saldo, valor_sacado) VALUES (?, ?, ?, ?)";
+            sql = "INSERT INTO saque (id, novo_saldo, valor_sacado) VALUES (?, ?, ?)";
             stmt = conn.prepareStatement(sql);
             stmt.setInt(1, novoId);
-            stmt.setInt(2, usuario.getId());
-            stmt.setDouble(3, novoSaldo);
-            stmt.setDouble(4, quantia);
+            stmt.setDouble(2, novoSaldo);
+            stmt.setDouble(3, quantia);
             stmt.execute();
 
             conn.commit();

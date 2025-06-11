@@ -2,6 +2,8 @@
 import java.util.Scanner;
 
 import comandos.ComandosUsuario;
+import operacoes.transferencia.TransferenciaDTO;
+import usuario.extrato.Extrato;
 
 public class App {
     public static void main(String[] args) {
