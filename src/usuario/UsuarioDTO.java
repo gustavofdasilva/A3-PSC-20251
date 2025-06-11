@@ -6,18 +6,20 @@ public class UsuarioDTO {
     private String nome;
     private String senha;
     private String email;
-    private int telefone;
-    private long cpf;
+    private String telefone;
+    private String cpf;
     private double saldo;
     private String banco;
 
-    public UsuarioDTO(String nome, String senha, String email, int telefone, long cpf, String banco) {
+    public UsuarioDTO(String nome, String senha, String email, String telefone, String cpf, String banco, double saldo) {
+        this.id = id;
         this.nome = nome;
         this.senha = senha;
         this.email = email;
         this.telefone = telefone;
         this.cpf = cpf;
         this.banco = banco;
+        this.saldo = saldo;
     }
 
     public int getId() {
@@ -52,11 +54,11 @@ public class UsuarioDTO {
         this.senha = senha;
     }
 
-    public int getTelefone() {
+    public String getTelefone() {
         return telefone;
     }
 
-    public void setTelefone(int telefone) {
+    public void setTelefone(String telefone) {
         this.telefone = telefone;
     }
 
@@ -68,11 +70,11 @@ public class UsuarioDTO {
         this.email = email;
     }
 
-    public long getCpf() {
+    public String getCpf() {
         return cpf;
     }
 
-    public void setCpf(long cpf) {
+    public void setCpf(String cpf) {
         this.cpf = cpf;
     }
 

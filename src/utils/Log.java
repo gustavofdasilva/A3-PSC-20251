@@ -1,16 +1,23 @@
 package utils;
 
 public class Log {
+    final static boolean ativarLogInterno = false;
 
     public static void log(String mensagem) {
-        System.out.println(mensagem);
+        if (ativarLogInterno) {
+            System.out.println(mensagem);
+        }
     }
 
     public static void info(String mensagem) {
-        System.out.println("INFO: " + mensagem);
+        if (ativarLogInterno) {
+            System.out.println("INFO: " + mensagem);
+        }
     }
 
     public static void error(String mensagem) {
-        System.err.println("ERROR: " + mensagem);
+        if (ativarLogInterno) {
+            System.err.println("ERROR: " + mensagem);
+        }
     }
 }

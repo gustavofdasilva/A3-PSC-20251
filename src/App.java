@@ -6,19 +6,21 @@ import comandos.ComandosUsuario;
 public class App {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        ComandosUsuario comandosUsuario = new ComandosUsuario(scanner);
+
         String comando;
         System.out.println("Bem-vindo ao sistema bancário!");
-        
+        System.out.println("███████╗██╗███████╗████████╗███████╗███╗   ███╗ █████╗\n██╔════╝██║██╔════╝╚══██╔══╝██╔════╝████╗ ████║██╔══██╗\n███████╗██║███████╗   ██║   █████╗  ██╔████╔██║███████║\n╚════██║██║╚════██║   ██║   ██╔══╝  ██║╚██╔╝██║██╔══██║\n███████║██║███████║   ██║   ███████╗██║ ╚═╝ ██║██║  ██║\n╚══════╝╚═╝╚══════╝   ╚═╝   ╚══════╝╚═╝     ╚═╝╚═╝  ╚═╝\n\n██████╗  █████╗ ███╗   ██╗ ██████╗ █████╗ ██████╗ ██╗ ██████╗\n██╔══██╗██╔══██╗████╗  ██║██╔════╝██╔══██╗██╔══██╗██║██╔═══██╗\n██████╔╝███████║██╔██╗ ██║██║     ███████║██████╔╝██║██║   ██║\n██╔══██╗██╔══██║██║╚██╗██║██║     ██╔══██║██╔══██╗██║██║   ██║\n██████╔╝██║  ██║██║ ╚████║╚██████╗██║  ██║██║  ██║██║╚██████╔╝\n╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝ ╚═════╝ ");
         do {
             mostrarComandosPrincipais();
             System.out.print("Digite o comando desejado: ");
             comando = scanner.nextLine().toLowerCase();
             switch (comando) {
                 case "1": //criar usuário
-                    ComandosUsuario.acaoCriarUsuario(scanner);
+                    comandosUsuario.acaoCriarUsuario(scanner);
                     break;
                 case "2": //logar usuário
-                    ComandosUsuario.acaoLogarUsuario(scanner);
+                    comandosUsuario.acaoLogarUsuario(scanner);
                     break;
                 
                 case "x":
