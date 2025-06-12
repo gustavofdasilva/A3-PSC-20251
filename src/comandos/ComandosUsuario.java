@@ -15,9 +15,11 @@ public class ComandosUsuario extends Comandos {
 
     Scanner mainScanner;
     UsuarioDTO usuarioLogado;
+    ComandosPix comandosPix;
 
     public ComandosUsuario(Scanner scanner) {
         this.mainScanner = scanner;
+        comandosPix = new ComandosPix(scanner, usuarioLogado);
     }
 
     public void mostrarInfoUsuarioAtualizado() {
@@ -25,6 +27,7 @@ public class ComandosUsuario extends Comandos {
         UsuarioDTO usuarioDTO = usuarioDAO.autenticarUsuario(usuarioLogado.getCpf(), usuarioLogado.getSenha());
 
         this.usuarioLogado = usuarioDTO;
+        comandosPix = new ComandosPix(mainScanner, usuarioLogado);
 
         String saldoFormatado = FormatarString.numeroParaReais(this.usuarioLogado.getSaldo());
         System.out.println("---------------------------------");
@@ -46,7 +49,7 @@ public class ComandosUsuario extends Comandos {
         System.out.println("2. Saque");
         System.out.println("3. Depósito");
         System.out.println("4. Extrato");
-        System.out.println("5. Fazer Pix");
+        System.out.println("5. Pix");
         System.out.println("6. Pagar boleto");
         System.out.println("X. Sair");
         System.out.println("---------------------------------");
@@ -74,7 +77,7 @@ public class ComandosUsuario extends Comandos {
                     Extrato.exibirExtrato(usuarioLogado.getId());
                     break;
                 case "5":
-                    // Lógica para fazer Pix
+                    comandosPix.loop();
                     break;
                 case "6":
                     // Lógica para pagar boleto

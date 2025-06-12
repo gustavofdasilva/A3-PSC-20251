@@ -9,6 +9,7 @@ import operacoes.OperacaoDTO;
 import operacoes.deposito.DepositoDTO;
 import operacoes.saque.SaqueDTO;
 import operacoes.transferencia.TransferenciaDTO;
+import utils.FormatarString;
 
 public class Extrato {
     
@@ -28,13 +29,14 @@ public class Extrato {
             } else if (operacao instanceof SaqueDTO) {
                 SaqueDTO saque = (SaqueDTO) operacao;
                 
-                String infoAdicional = "Valor sacado: "+Double.toString(saque.getValorSacado())+" / Novo saldo registrado: "+Double.toString(saque.getNovoSaldo());
+                
+                String infoAdicional = "Valor sacado: "+FormatarString.numeroParaReais(saque.getValorSacado())+" / Novo saldo registrado: "+FormatarString.numeroParaReais(saque.getNovoSaldo());
                 mostrarOperacao(operacao.getTipo(), operacao.getDtOperacao(), infoAdicional);
 
             } else if (operacao instanceof DepositoDTO) {
                 DepositoDTO deposito = (DepositoDTO) operacao;
                 
-                String infoAdicional = "Valor depositado: "+Double.toString(deposito.getValorDepositado())+" / Novo saldo registrado: "+Double.toString(deposito.getNovoSaldo());
+                String infoAdicional = "Valor depositado: "+FormatarString.numeroParaReais(deposito.getValorDepositado())+" / Novo saldo registrado: "+FormatarString.numeroParaReais(deposito.getNovoSaldo());
                 mostrarOperacao(operacao.getTipo(), operacao.getDtOperacao(), infoAdicional);
             }
         }
