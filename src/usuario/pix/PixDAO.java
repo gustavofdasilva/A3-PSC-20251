@@ -11,9 +11,21 @@ public class PixDAO extends BaseDAO {
     public void criarNovaChave(PixDTO pixDTO) {
         this.conn = conexaoDAO.conectar();
         try {
-            
-            String sql = "INSERT INTO chave_pix (id_usuario, tipo, chave) VALUES (?, ?, ?)";
+            //Checa se o usuário já tem uma chave desse tipo
+            String sql = "SELECT tipo FROM chave_pix WHERE id_usuario = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, pixDTO.getIdUsuario());
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                String tipo = rs.getString("tipo");
+                if (tipo.equalsIgnoreCase(pixDTO.getTipo())) {
+                    System.err.printf("Você já tem uma chave pix do tipo %s\n",tipo);
+                    return;
+                }
+            }
+
+            sql = "INSERT INTO chave_pix (id_usuario, tipo, chave) VALUES (?, ?, ?)";
+            stmt = conn.prepareStatement(sql);
             stmt.setInt(1, pixDTO.getIdUsuario());
             stmt.setString(2, pixDTO.getTipo());
             stmt.setString(3, pixDTO.getChave());

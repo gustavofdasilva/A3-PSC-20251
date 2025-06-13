@@ -1,4 +1,5 @@
 
+import java.util.Locale;
 import java.util.Scanner;
 
 import comandos.ComandosUsuario;
@@ -7,11 +8,21 @@ import usuario.extrato.Extrato;
 
 public class App {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in).useLocale(Locale.US);
         ComandosUsuario comandosUsuario = new ComandosUsuario(scanner);
 
         String comando;
         System.out.println("Bem-vindo ao sistema bancário!");
+        System.out.println("                  .----.\r\n" + //
+                        "      .---------. | == |\r\n" + //
+                        "      |.-\"\"\"\"\"-.| |----|\r\n" + //
+                        "      ||       || | == |\r\n" + //
+                        "      ||       || |----|\r\n" + //
+                        "      |'-.....-'| |::::|\r\n" + //
+                        "      `\"\")---(\"\"` |___.|\r\n" + //
+                        "     /:::::::::::\\\" _  \"\r\n" + //
+                        "    /:::=======:::\\`\\`\\\r\n" + //
+                        "    `\"\"\"\"\"\"\"\"\"\"\"\"\"`  '-'");
         System.out.println("███████╗██╗███████╗████████╗███████╗███╗   ███╗ █████╗\n██╔════╝██║██╔════╝╚══██╔══╝██╔════╝████╗ ████║██╔══██╗\n███████╗██║███████╗   ██║   █████╗  ██╔████╔██║███████║\n╚════██║██║╚════██║   ██║   ██╔══╝  ██║╚██╔╝██║██╔══██║\n███████║██║███████║   ██║   ███████╗██║ ╚═╝ ██║██║  ██║\n╚══════╝╚═╝╚══════╝   ╚═╝   ╚══════╝╚═╝     ╚═╝╚═╝  ╚═╝\n\n██████╗  █████╗ ███╗   ██╗ ██████╗ █████╗ ██████╗ ██╗ ██████╗\n██╔══██╗██╔══██╗████╗  ██║██╔════╝██╔══██╗██╔══██╗██║██╔═══██╗\n██████╔╝███████║██╔██╗ ██║██║     ███████║██████╔╝██║██║   ██║\n██╔══██╗██╔══██║██║╚██╗██║██║     ██╔══██║██╔══██╗██║██║   ██║\n██████╔╝██║  ██║██║ ╚████║╚██████╗██║  ██║██║  ██║██║╚██████╔╝\n╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝ ╚═════╝ ");
         do {
             mostrarComandosPrincipais();

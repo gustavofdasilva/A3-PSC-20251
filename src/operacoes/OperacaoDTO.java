@@ -1,14 +1,15 @@
 package operacoes;
 
 import java.sql.Time;
+import java.sql.Timestamp;
 
 public class OperacaoDTO {
     protected int id;
-    protected Time dtOperacao;
+    protected Timestamp dtOperacao;
     protected int idUsuario;
     protected String tipo;
 
-    public OperacaoDTO(int id, int idUsuario, Time dtOperacao, String tipo) {
+    public OperacaoDTO(int id, int idUsuario, Timestamp dtOperacao, String tipo) {
         this.id = id;
         this.dtOperacao = dtOperacao;
         this.idUsuario = idUsuario;
@@ -39,11 +40,11 @@ public class OperacaoDTO {
         this.id = id;
     }
 
-    public Time getDtOperacao() {
+    public Timestamp getDtOperacao() {
         return dtOperacao;
     }
 
-    public void setDtOperacao(Time dtOperacao) {
+    public void setDtOperacao(Timestamp dtOperacao) {
         this.dtOperacao = dtOperacao;
     }
 

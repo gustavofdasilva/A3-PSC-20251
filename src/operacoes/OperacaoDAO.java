@@ -29,7 +29,7 @@ public class OperacaoDAO extends BaseDAO {
                 OperacaoDTO op = new OperacaoDTO(
                     rs.getInt("id"), 
                     rs.getInt("id_usuario"),
-                    rs.getTime("dt_operacao"), 
+                    rs.getTimestamp("dt_operacao"), 
                     rs.getString("tipo"));
                 
                 switch (op.getTipo()) {
@@ -40,6 +40,25 @@ public class OperacaoDAO extends BaseDAO {
                             while (subRs.next()){
                                 TransferenciaDTO transferencia = new TransferenciaDTO(
                                     op.getTipo(),
+                                    op.getId(),
+                                    op.getIdUsuario(),
+                                    op.getDtOperacao(),
+                                    subRs.getInt("id_usuario_destinatario"),
+                                    subRs.getInt("quantia")
+                                );
+
+                                operacoes.add(transferencia);
+                            }
+
+                        break;
+                
+                    case "transferencia_pix":
+                            subStmt = conn.prepareStatement(sqlTransferencia);
+                            subStmt.setInt(1,op.getId());
+                            subRs = subStmt.executeQuery();
+                            while (subRs.next()){
+                                TransferenciaDTO transferencia = new TransferenciaDTO(
+                                    "transferencia_pix",
                                     op.getId(),
                                     op.getIdUsuario(),
                                     op.getDtOperacao(),

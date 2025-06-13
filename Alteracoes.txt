@@ -1,0 +1,6 @@
+12/06
+    Opcao gerenciar transacoes pix
+        já pode analisar todas transacoes do tipo pix   
+        tem a opcao de estornar mas n acontece nada
+    Extrato separado por dia
+    Impedir usuario criar chave se ja tem pix nesse valor

@@ -1,5 +1,6 @@
 package operacoes.transferencia;
 import java.sql.Time;
+import java.sql.Timestamp;
 
 import operacoes.OperacaoDTO;
 
@@ -7,19 +8,19 @@ public class TransferenciaDTO extends OperacaoDTO {
 
     private int idUsuarioRemetente;
     private int idUsuarioDestinatario;
-    private int quantia;
+    private double quantia;
 
-    public TransferenciaDTO(String tipo, int id, int idUsuario, Time dtOperacao, int idUsuarioDestinatario, int quantia) {
+    public TransferenciaDTO(String tipo, int id, int idUsuario, Timestamp dtOperacao, int idUsuarioDestinatario, double quantia) {
         super(id, idUsuario, dtOperacao, tipo);
         this.idUsuarioDestinatario = idUsuarioDestinatario;
         this.quantia = quantia;
     }
 
-    public int getQuantia() {
+    public double getQuantia() {
         return quantia;
     }
 
-    public void setQuantia(int quantia) {
+    public void setQuantia(double quantia) {
         this.quantia = quantia;
     }
 
