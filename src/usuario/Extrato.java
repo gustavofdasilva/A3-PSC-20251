@@ -1,4 +1,4 @@
-package usuario.extrato;
+package usuario;
 
 import java.sql.Date;
 import java.sql.Time;
@@ -27,12 +27,12 @@ public class Extrato {
 
             if(ultimoDia.equals("")) {
                 ultimoDia = operacao.getDtOperacao().toString().split(" ")[0];
-                System.out.printf("%s -------------------\n",retornaTimestampDia(ultimoDia));
+                System.out.printf("%s -------------------\n",FormatarString.retornaTimestampDia(ultimoDia));
             } else {
                 if (!ultimoDia.equals(operacao.getDtOperacao().toString().split(" ")[0])){
                     ultimoDia = operacao.getDtOperacao().toString().split(" ")[0];
                     System.out.println(" ");
-                    System.out.printf("%s -------------------\n",retornaTimestampDia(ultimoDia));
+                    System.out.printf("%s -------------------\n",FormatarString.retornaTimestampDia(ultimoDia));
                 }
             }
 
@@ -40,7 +40,7 @@ public class Extrato {
             if (operacao instanceof TransferenciaDTO) {
                 TransferenciaDTO transferencia = (TransferenciaDTO) operacao;
                 
-                String infoAdicional = "Conta destinataria: "+Integer.toString(transferencia.getIdUsuarioDestinatario())+" / Quantia: "+Double.toString(transferencia.getQuantia());
+                String infoAdicional = "Conta destinataria: "+Integer.toString(transferencia.getIdUsuarioDestinatario())+" / Quantia: "+FormatarString.numeroParaReais(transferencia.getQuantia());
                 mostrarOperacao(operacao.getTipo(), operacao.getDtOperacao(), infoAdicional);
 
             } else if (operacao instanceof SaqueDTO) {
@@ -65,20 +65,5 @@ public class Extrato {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
         String dataFormatada = sdf.format(dtOperacao);
         System.out.println(tipo.toUpperCase()+": "+infoAdicional+" / Feita em: "+ dataFormatada);
-    }
-
-    public static String retornaTimestampCompleto(Timestamp data) {
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
-        return sdf.format(data);
-    }
-
-    public static String retornaTimestampDia(Timestamp data) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        return sdf.format(data);
-    }
-    public static String retornaTimestampDia(String dataString) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        Timestamp data = Timestamp.valueOf(dataString+" 00:00:00");
-        return sdf.format(data);
     }
 }

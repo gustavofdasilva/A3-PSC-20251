@@ -1,4 +1,4 @@
-package usuario.pix;
+package pix;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -70,5 +70,6 @@ public class PixDAO extends BaseDAO {
             conexaoDAO.fecharConexao();
         }
     }
+
 
 }

@@ -8,11 +8,13 @@ import operacoes.deposito.DepositoDAO;
 import operacoes.saque.SaqueDAO;
 import operacoes.transferencia.TransferenciaDAO;
 import operacoes.transferencia.TransferenciaDTO;
+import pix.PixDAO;
+import pix.PixDTO;
+import pix.estorno.EstornoDAO;
+import pix.estorno.EstornoDTO;
+import usuario.Extrato;
 import usuario.UsuarioDAO;
 import usuario.UsuarioDTO;
-import usuario.extrato.Extrato;
-import usuario.pix.PixDAO;
-import usuario.pix.PixDTO;
 import utils.FormatarString;
 import utils.Log;
 
@@ -20,6 +22,7 @@ public class ComandosPix extends Comandos {
 
     Scanner mainScanner;
     UsuarioDTO usuarioLogado;
+    TransferenciaDTO transferenciaSelecionada;
 
     public ComandosPix(Scanner scanner, UsuarioDTO usuarioDTO) {
         this.mainScanner = scanner;
@@ -33,6 +36,7 @@ public class ComandosPix extends Comandos {
         System.out.println("2. Criar chave pix");
         System.out.println("3. Gerenciar chave pix");
         System.out.println("4. Gerenciar transações pix");
+        System.out.println("5. Minhas solicitações de estorno");
         System.out.println("X. Sair");
         System.out.println("---------------------------------");
     }
@@ -62,8 +66,12 @@ public class ComandosPix extends Comandos {
                     break;
                 case "3":
                     acaoBuscarChaves(mainScanner);
+                    break;
                 case "4":
                     acaoGerenciarTransacoes(mainScanner);
+                    break;
+                case "5":
+                    acaoMinhasSolicitacoesDeEstorno(mainScanner);
                     break;
                 case "x":
                     System.out.println("Voltando para usuário...");
@@ -84,7 +92,17 @@ public class ComandosPix extends Comandos {
 
             switch (comando) {
                 case "1":
-                    //Estornar pix
+                    System.out.println(" ");
+                    System.out.println("Tem certeza que deseja solicitar o estorno do pix? Sua solicitação será enviada para o usuário que recebeu e a aprovação dele é necessária");
+                    System.out.println("Sua solicitação será enviada para o usuário que recebeu o pix e a aprovação dele é necessária para realizar o estorno");
+                    System.out.println("Contate nosso suporte para mais informações");
+                    System.out.print("Digite (S) para confirmar e (N) para cancelar: ");
+                    comando = this.mainScanner.nextLine().toLowerCase();
+                        if(comando.equals("s")) {
+                            acaoSolicitarEstorno(mainScanner);
+                            return;
+                        } 
+                    break;
                 case "x":
                     System.out.println("Voltando para pix...");
                     return;
@@ -92,6 +110,13 @@ public class ComandosPix extends Comandos {
                     Log.error("Comando inválido.");
             }
         } while (!comando.equals("x"));
+    }
+
+    public void acaoSolicitarEstorno(Scanner scanner) {
+        System.out.println("Você escolheu solicitar o estorno do pix.");
+        
+        EstornoDAO estornoDAO = new EstornoDAO();
+        estornoDAO.solicitarEstornoPix(transferenciaSelecionada.getId(), transferenciaSelecionada.getIdUsuario(), transferenciaSelecionada.getIdUsuarioDestinatario());
     }
 
     public void acaoTransferenciaPix(Scanner scanner) {
@@ -138,6 +163,19 @@ public class ComandosPix extends Comandos {
         pixDAO.criarNovaChave(pixDTO);
     }
 
+    public void acaoMinhasSolicitacoesDeEstorno(Scanner scanner) {
+        System.out.println("Você escolheu acessar suas solicitacoes de estorno.");
+        
+        EstornoDAO estornoDAO = new EstornoDAO();
+        ArrayList<EstornoDTO> estornos = estornoDAO.buscarSolicitacoesDoIdUsuario(usuarioLogado.getId());
+
+        System.err.println(" ");
+        for(int i = 0; i < estornos.size(); i++) {
+            EstornoDTO estorno = estornos.get(i);
+            System.err.println( Integer.toString(i+1)+". Solicitada em: "+FormatarString.retornaTimestampCompleto(estorno.getDtSolicitacao()) +" / Quantia: "+FormatarString.numeroParaReais(estorno.getQuantia())+" / Transferencia realizada em: "+FormatarString.retornaTimestampCompleto(estorno.getDtOperacao())+" / STATUS: "+estorno.getStatus());
+        }
+    }
+
     public void acaoBuscarChaves(Scanner scanner) {
         System.out.println("Você escolheu fazer acessar suas chaves pix.");
         
@@ -163,7 +201,7 @@ public class ComandosPix extends Comandos {
 
         for(int i = 0; i < transferencias.size(); i++) {
             TransferenciaDTO transferencia = transferencias.get(i);
-            String infoAdicional = "Conta enviada: "+Integer.toString(transferencia.getIdUsuarioDestinatario())+ " / Quantia: "+Double.toString(transferencia.getQuantia()) +" / Feita em: "+transferencia.getDtOperacao().toString();
+            String infoAdicional = "Conta enviada: "+Integer.toString(transferencia.getIdUsuarioDestinatario())+ " / Quantia: "+FormatarString.numeroParaReais(transferencia.getQuantia()) +" / Feita em: "+transferencia.getDtOperacao().toString();
             System.out.println(Integer.toString(i+1)+". "+infoAdicional);
         }
 
@@ -175,15 +213,17 @@ public class ComandosPix extends Comandos {
             transferenciaEscolhida = transferencias.get(idxTransferencia-1);
         } catch (IndexOutOfBoundsException e) {
             System.out.println("Transação não encontrada!");
+            transferenciaSelecionada = null;
             return;
         }
+        transferenciaSelecionada = transferenciaEscolhida;
         System.out.println("---------------------------------");
         System.err.println("Enviada para conta n°: "+transferenciaEscolhida.getIdUsuarioDestinatario());
-        System.err.println("Quantia: "+transferenciaEscolhida.getQuantia());
-        System.err.println("Feita em: "+transferenciaEscolhida.getDtOperacao().toString());
+        System.err.println("Quantia: "+FormatarString.numeroParaReais(transferenciaEscolhida.getQuantia()));
+        System.err.println("Feita em: "+FormatarString.retornaTimestampCompleto(transferenciaEscolhida.getDtOperacao()));
         System.out.println("---------------------------------");
         loopTransacao();
-        
+        transferenciaSelecionada = null;
     }
 
     

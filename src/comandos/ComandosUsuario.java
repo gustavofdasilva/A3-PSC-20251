@@ -1,13 +1,18 @@
 package comandos;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import operacoes.deposito.DepositoDAO;
 import operacoes.saque.SaqueDAO;
 import operacoes.transferencia.TransferenciaDAO;
+import operacoes.transferencia.TransferenciaDTO;
+import pix.estorno.EstornoDAO;
+import usuario.Extrato;
 import usuario.UsuarioDAO;
 import usuario.UsuarioDTO;
-import usuario.extrato.Extrato;
+import usuario.notificacao.NotificacaoDAO;
+import usuario.notificacao.NotificacaoDTO;
 import utils.FormatarString;
 import utils.Log;
 
@@ -15,6 +20,7 @@ public class ComandosUsuario extends Comandos {
 
     Scanner mainScanner;
     UsuarioDTO usuarioLogado;
+    NotificacaoDTO notificacaoAnalisada;
     ComandosPix comandosPix;
 
     public ComandosUsuario(Scanner scanner) {
@@ -30,8 +36,21 @@ public class ComandosUsuario extends Comandos {
         comandosPix = new ComandosPix(mainScanner, usuarioLogado);
 
         String saldoFormatado = FormatarString.numeroParaReais(this.usuarioLogado.getSaldo());
+
+        NotificacaoDAO notificacaoDAO = new NotificacaoDAO();
+        ArrayList<NotificacaoDTO> notificacoes = notificacaoDAO.buscarNotificacoes(usuarioDTO.getId());
+        int notificacoesNaoLidas = 0;
+        for (int i = 0; i < notificacoes.size(); i ++) {
+            if (notificacoes.get(i).getStatus().equals("NAO_LIDA")) {
+                notificacoesNaoLidas++;
+            }
+        }
+
         System.out.println("---------------------------------");
         System.out.println("INFORMAÇÕES DO USUÁRIO");
+        if(notificacoesNaoLidas > 0) {
+            System.out.printf("VOCÊ POSSUI (%d) NOTIFICAÇÕES NÃO LIDAS - DIGITE 6 PARA VER\n",notificacoesNaoLidas);
+        }
         System.out.println("Nome: " + usuarioDTO.getNome());
         System.out.println("Email: " + usuarioDTO.getEmail());
         System.out.println("Telefone: " + usuarioDTO.getTelefone());
@@ -50,7 +69,17 @@ public class ComandosUsuario extends Comandos {
         System.out.println("3. Depósito");
         System.out.println("4. Extrato");
         System.out.println("5. Pix");
-        System.out.println("6. Pagar boleto");
+        System.out.println("6. Notificações");
+        System.out.println("X. Sair");
+        System.out.println("---------------------------------");
+    }
+
+    public void mostrarAcoesConfirmarEstorno() {
+        System.out.println("---------------------------------");
+        System.out.println("Deseja confirmar o estorno do pix enviado para você?");
+        System.out.println("Ações disponíveis:");
+        System.out.println("1. Confimar");
+        System.out.println("2. Recusar");
         System.out.println("X. Sair");
         System.out.println("---------------------------------");
     }
@@ -80,7 +109,7 @@ public class ComandosUsuario extends Comandos {
                     comandosPix.loop();
                     break;
                 case "6":
-                    // Lógica para pagar boleto
+                    acaoVerNotificacoes(mainScanner);
                     break;
                 
                 case "x":
@@ -90,6 +119,104 @@ public class ComandosUsuario extends Comandos {
                     Log.error("Comando inválido.");
             }
         } while (!comando.equals("x"));
+    }
+
+    public void loopConfirmarEstorno() {
+        String comando;
+
+        do {
+            mostrarAcoesConfirmarEstorno();
+            System.out.print("Digite o comando desejado: ");
+            comando = this.mainScanner.nextLine().toLowerCase();
+
+            switch (comando) {
+                case "1":
+                    System.out.println(" ");
+                    System.out.println("Tem certeza que deseja estornar o pix?");
+                    System.out.print("Digite (S) para confirmar e (N) para cancelar: ");
+                    comando = this.mainScanner.nextLine().toLowerCase();
+                        if(comando.equals("s")) {
+                            acaoEstornarPix();
+                            return;
+                        } 
+                    break;
+
+                case "2":
+                    System.out.println(" ");
+                    System.out.println("Tem certeza que deseja recusar a solicitação de estorno do pix?");
+                    System.out.println("Caso o usuário que te enviou o pix conteste sua resposta, nossos administradores serão acionados para investigar a situação e, caso seja comprovado que o pix foi acidental, o valor será retirado da sua conta sem aviso prévio");
+                    System.out.print("Digite (S) para confirmar e (N) para cancelar: ");
+                    comando = this.mainScanner.nextLine().toLowerCase();
+                        if(comando.equals("s")) {
+                            acaoRecusarEstornoPix();
+                            return;
+                        } 
+                    break;
+                
+                case "x":
+                    System.out.println("Deslogando do sistema...");
+                    return;
+                default:
+                    Log.error("Comando inválido.");
+            }
+        } while (!comando.equals("x"));
+    }
+
+    public void acaoRecusarEstornoPix() {
+        System.out.println("Você escolheu recusar o estorno do pix.");
+        EstornoDAO estornoDAO = new EstornoDAO();
+        estornoDAO.cancelarEstornoPix(notificacaoAnalisada.getReferencia());
+    }
+
+
+    public void acaoEstornarPix() {
+        System.out.println("Você escolheu estornar o pix.");
+        EstornoDAO estornoDAO = new EstornoDAO();
+        estornoDAO.confirmarEstornoPix(notificacaoAnalisada.getReferencia());
+    }
+
+    public void acaoVerNotificacoes(Scanner scanner) {
+        System.out.println("Você escolheu ver suas notificacoes.");
+
+        NotificacaoDAO notificacaoDAO = new NotificacaoDAO();
+        ArrayList<NotificacaoDTO> notificacoes = notificacaoDAO.buscarNotificacoes(usuarioLogado.getId());
+
+        if (notificacoes.size() == 0) {
+            System.out.println("Nenhuma notificação encontrada!");
+            return;
+        }
+
+        System.out.println(" ");
+        for(int i = 0; i < notificacoes.size(); i++) {
+            NotificacaoDTO notificacao = notificacoes.get(i);
+            if (notificacao.getStatus().equalsIgnoreCase("NAO_LIDA")) {
+                System.out.println(Integer.toString(i+1)+". NOVA NOTIFICACAO: "+ notificacao.getConteudo());
+            } else {
+                System.out.println(Integer.toString(i+1)+". "+ notificacao.getConteudo());
+            }
+        }
+        System.out.println(" ");
+
+        System.out.println("Digite qual notificacao deseja analisar (número ao começo da linha):");
+        int idxNotificacao = scanner.nextInt();
+        scanner.nextLine();
+        NotificacaoDTO notificacaoEscolhida = null;
+        try {
+            notificacaoEscolhida = notificacoes.get(idxNotificacao-1);
+        } catch (IndexOutOfBoundsException e) {
+            notificacaoAnalisada = null;
+            System.out.println("Notificação não encontrada!");
+            return;
+        }
+        notificacaoAnalisada = notificacaoEscolhida;
+
+        notificacaoDAO.mudarStatus(notificacaoEscolhida.getId(), "LIDA");
+        System.out.println("---------------------------------");
+        System.err.println("Mensagem: "+notificacaoEscolhida.getConteudo());
+        System.err.println("Criada em: "+FormatarString.retornaTimestampCompleto(notificacaoEscolhida.getDtCriada()));
+        System.out.println("---------------------------------");
+        loopConfirmarEstorno();
+        notificacaoAnalisada = null;
     }
 
     public void acaoSaque(Scanner scanner) {

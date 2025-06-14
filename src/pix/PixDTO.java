@@ -1,4 +1,4 @@
-package usuario.pix;
+package pix;
 
 public class PixDTO {
     private int id;

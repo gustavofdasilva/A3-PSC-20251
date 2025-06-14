@@ -5,7 +5,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import bd.BaseDAO;
-import usuario.extrato.Extrato;
 import utils.Log;
 
 public class UsuarioDAO extends BaseDAO{
