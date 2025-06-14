@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.text.SimpleDateFormat;
 
+import operacoes.OperacaoDTO.Contexto;
 import operacoes.OperacaoDAO;
 import operacoes.OperacaoDTO;
 import operacoes.deposito.DepositoDTO;
@@ -39,22 +40,27 @@ public class Extrato {
 
             if (operacao instanceof TransferenciaDTO) {
                 TransferenciaDTO transferencia = (TransferenciaDTO) operacao;
-                
-                String infoAdicional = "Conta destinataria: "+Integer.toString(transferencia.getIdUsuarioDestinatario())+" / Quantia: "+FormatarString.numeroParaReais(transferencia.getQuantia());
-                mostrarOperacao(operacao.getTipo(), operacao.getDtOperacao(), infoAdicional);
+
+                String infoAdicional = "";
+                if(transferencia.getContexto() == Contexto.ENTRADA) {
+                    infoAdicional = "Quantia recebida: "+FormatarString.numeroParaReais(transferencia.getQuantia());
+                } else if (transferencia.getContexto() == Contexto.SAIDA) {
+                    infoAdicional = "Conta destinataria: "+Integer.toString(transferencia.getIdUsuarioDestinatario())+" / Quantia enviada: "+FormatarString.numeroParaReais(transferencia.getQuantia());
+                }
+                mostrarOperacao(operacao.getContexto(), operacao.getTipo(), operacao.getDtOperacao(), infoAdicional);
 
             } else if (operacao instanceof SaqueDTO) {
                 SaqueDTO saque = (SaqueDTO) operacao;
                 
                 
                 String infoAdicional = "Valor sacado: "+FormatarString.numeroParaReais(saque.getValorSacado())+" / Novo saldo registrado: "+FormatarString.numeroParaReais(saque.getNovoSaldo());
-                mostrarOperacao(operacao.getTipo(), operacao.getDtOperacao(), infoAdicional);
+                mostrarOperacao(operacao.getContexto(), operacao.getTipo(), operacao.getDtOperacao(), infoAdicional);
 
             } else if (operacao instanceof DepositoDTO) {
                 DepositoDTO deposito = (DepositoDTO) operacao;
                 
                 String infoAdicional = "Valor depositado: "+FormatarString.numeroParaReais(deposito.getValorDepositado())+" / Novo saldo registrado: "+FormatarString.numeroParaReais(deposito.getNovoSaldo());
-                mostrarOperacao(operacao.getTipo(), operacao.getDtOperacao(), infoAdicional);
+                mostrarOperacao(operacao.getContexto(), operacao.getTipo(), operacao.getDtOperacao(), infoAdicional);
             }
         }
 
@@ -65,5 +71,18 @@ public class Extrato {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
         String dataFormatada = sdf.format(dtOperacao);
         System.out.println(tipo.toUpperCase()+": "+infoAdicional+" / Feita em: "+ dataFormatada);
+    }
+
+    public static void mostrarOperacao(Contexto contexto, String tipo, Timestamp dtOperacao, String infoAdicional) {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
+        String dataFormatada = sdf.format(dtOperacao);
+        String contextoString = "";
+        if(contexto == Contexto.ENTRADA) {
+            contextoString = "(+)";
+        } else if (contexto == Contexto.SAIDA) {
+            contextoString = "(-)";
+        }
+
+        System.out.println(contextoString+" "+tipo.toUpperCase()+": "+infoAdicional+" / Feita em: "+ dataFormatada);
     }
 }

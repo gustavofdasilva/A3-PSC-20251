@@ -20,12 +20,11 @@ import utils.Log;
 
 public class ComandosPix extends Comandos {
 
-    Scanner mainScanner;
     UsuarioDTO usuarioLogado;
     TransferenciaDTO transferenciaSelecionada;
 
     public ComandosPix(Scanner scanner, UsuarioDTO usuarioDTO) {
-        this.mainScanner = scanner;
+        super(scanner);
         this.usuarioLogado = usuarioDTO;
     }
 
@@ -206,7 +205,7 @@ public class ComandosPix extends Comandos {
 
         for(int i = 0; i < transferencias.size(); i++) {
             TransferenciaDTO transferencia = transferencias.get(i);
-            String infoAdicional = "Conta enviada: "+Integer.toString(transferencia.getIdUsuarioDestinatario())+ " / Quantia: "+FormatarString.numeroParaReais(transferencia.getQuantia()) +" / Feita em: "+transferencia.getDtOperacao().toString();
+            String infoAdicional = "Conta enviada: "+Integer.toString(transferencia.getIdUsuarioDestinatario())+ " / Quantia: "+FormatarString.numeroParaReais(transferencia.getQuantia()) +" / Feita em: "+FormatarString.retornaTimestampCompleto(transferencia.getDtOperacao());
             System.out.println(Integer.toString(i+1)+". "+infoAdicional);
         }
 

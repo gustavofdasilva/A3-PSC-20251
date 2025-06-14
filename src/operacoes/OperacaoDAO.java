@@ -18,102 +18,70 @@ public class OperacaoDAO extends BaseDAO {
         this.conn = conexaoDAO.conectar();
         ArrayList<OperacaoDTO> operacoes = new ArrayList<>();
         try {
-            String sql = "SELECT id, dt_operacao, id_usuario, tipo FROM operacao WHERE id_usuario = ? ORDER BY dt_operacao DESC";
-            String sqlTransferencia = "SELECT id_usuario_destinatario, quantia FROM transferencia WHERE id = ?";
-            String sqlSaque = "SELECT valor_sacado, novo_saldo FROM saque WHERE id = ?";
-            String sqlDeposito = "SELECT valor_depositado, novo_saldo FROM deposito WHERE id = ?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
+            //Seleciona transferencias
+            String sqlTransferencia = "SELECT o.id, o.tipo, o.dt_operacao, o.id_usuario, t.id_usuario_destinatario, t.quantia FROM transferencia t INNER JOIN operacao o ON t.id = o.id AND (o.id_usuario = ? OR t.id_usuario_destinatario = ?) ";
+            PreparedStatement stmt = conn.prepareStatement(sqlTransferencia);
             stmt.setInt(1, idUsuario);
+            stmt.setInt(2, idUsuario);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                OperacaoDTO op = new OperacaoDTO(
+                TransferenciaDTO transferencia = new TransferenciaDTO(
+                    rs.getString("tipo"), 
                     rs.getInt("id"), 
-                    rs.getInt("id_usuario"),
+                    rs.getInt("id_usuario"), 
                     rs.getTimestamp("dt_operacao"), 
-                    rs.getString("tipo"));
-                
-                switch (op.getTipo()) {
-                    case "transferencia":
-                            PreparedStatement subStmt = conn.prepareStatement(sqlTransferencia);
-                            subStmt.setInt(1,op.getId());
-                            ResultSet subRs = subStmt.executeQuery();
-                            while (subRs.next()){
-                                TransferenciaDTO transferencia = new TransferenciaDTO(
-                                    op.getTipo(),
-                                    op.getId(),
-                                    op.getIdUsuario(),
-                                    op.getDtOperacao(),
-                                    subRs.getInt("id_usuario_destinatario"),
-                                    subRs.getInt("quantia")
-                                );
+                    rs.getInt("id_usuario_destinatario"), 
+                    rs.getDouble("quantia")    
+                );
 
-                                operacoes.add(transferencia);
-                            }
-
-                        break;
-                
-                    case "transferencia_pix":
-                            subStmt = conn.prepareStatement(sqlTransferencia);
-                            subStmt.setInt(1,op.getId());
-                            subRs = subStmt.executeQuery();
-                            while (subRs.next()){
-                                TransferenciaDTO transferencia = new TransferenciaDTO(
-                                    "transferencia_pix",
-                                    op.getId(),
-                                    op.getIdUsuario(),
-                                    op.getDtOperacao(),
-                                    subRs.getInt("id_usuario_destinatario"),
-                                    subRs.getInt("quantia")
-                                );
-
-                                operacoes.add(transferencia);
-                            }
-
-                        break;
-
-                    case "saque":
-                            subStmt = conn.prepareStatement(sqlSaque);
-                            subStmt.setInt(1,op.getId());
-                            subRs = subStmt.executeQuery();
-                            while (subRs.next()){
-                                SaqueDTO saque = new SaqueDTO(
-                                    op.getTipo(),
-                                    op.getId(),
-                                    op.getIdUsuario(),
-                                    op.getDtOperacao(),
-                                    subRs.getInt("novo_saldo"),
-                                    subRs.getInt("valor_sacado")
-                                );
-
-                                operacoes.add(saque);
-                            }
-
-                        break;
-
-                    case "deposito":
-                            subStmt = conn.prepareStatement(sqlDeposito);
-                            subStmt.setInt(1,op.getId());
-                            subRs = subStmt.executeQuery();
-                            while (subRs.next()){
-                                DepositoDTO deposito = new DepositoDTO(
-                                    op.getTipo(),
-                                    op.getId(),
-                                    op.getIdUsuario(),
-                                    op.getDtOperacao(),
-                                    subRs.getInt("novo_saldo"),
-                                    subRs.getInt("valor_depositado")
-                                );
-
-                                operacoes.add(deposito);
-                            }
-
-                        break;
-                
-                    default:
-                        break;
+                if(idUsuario == rs.getInt("id_usuario")) {//SAIDA: enviou a quantia
+                    transferencia.setContexto(OperacaoDTO.Contexto.SAIDA);
+                } else if (idUsuario == rs.getInt("id_usuario_destinatario")) {//ENTRADA: recebeu a quantia
+                    transferencia.setContexto(OperacaoDTO.Contexto.ENTRADA);
                 }
+
+                operacoes.add(transferencia);
             }
+
+            String sqlSaque = "SELECT o.id, o.tipo, o.dt_operacao, o.id_usuario, s.valor_sacado, s.novo_saldo FROM saque s INNER JOIN operacao o ON s.id = o.id AND o.id_usuario = ?";
+            stmt = conn.prepareStatement(sqlSaque);
+            stmt.setInt(1, idUsuario);
+            rs = stmt.executeQuery();
+            while (rs.next()) {
+                SaqueDTO saque = new SaqueDTO(
+                    rs.getString("tipo"), 
+                    rs.getInt("id"), 
+                    rs.getInt("id_usuario"), 
+                    rs.getTimestamp("dt_operacao"), 
+                    rs.getDouble("novo_saldo"), 
+                    rs.getDouble("valor_sacado")    
+                );
+
+                saque.setContexto(OperacaoDTO.Contexto.SAIDA);
+                operacoes.add(saque);
+            }
+
+            String sqlDeposito = "SELECT o.id, o.tipo, o.dt_operacao, o.id_usuario, d.valor_depositado, d.novo_saldo FROM deposito d INNER JOIN operacao o ON d.id = o.id AND o.id_usuario = ?";
+            stmt = conn.prepareStatement(sqlDeposito);
+            stmt.setInt(1, idUsuario);
+            rs = stmt.executeQuery();
+            while (rs.next()) {
+                DepositoDTO deposito = new DepositoDTO(
+                    rs.getString("tipo"), 
+                    rs.getInt("id"), 
+                    rs.getInt("id_usuario"), 
+                    rs.getTimestamp("dt_operacao"), 
+                    rs.getDouble("novo_saldo"), 
+                    rs.getDouble("valor_depositado")    
+                );
+
+                deposito.setContexto(OperacaoDTO.Contexto.ENTRADA);
+                operacoes.add(deposito);
+            }
+
             
+            operacoes.sort((o1, o2) -> o2.getDtOperacao().compareTo(o1.getDtOperacao()));
+
             return operacoes;
         } catch (SQLException e) {
             System.out.println("Erro ao realizar transferencia: " + e.getMessage());
