@@ -169,6 +169,11 @@ public class ComandosPix extends Comandos {
         EstornoDAO estornoDAO = new EstornoDAO();
         ArrayList<EstornoDTO> estornos = estornoDAO.buscarSolicitacoesDoIdUsuario(usuarioLogado.getId());
 
+        if(estornos.size() == 0) {
+            System.err.println("Você não possui nenhuma solicitação de estorno!");    
+            return;
+        }
+        
         System.err.println(" ");
         for(int i = 0; i < estornos.size(); i++) {
             EstornoDTO estorno = estornos.get(i);

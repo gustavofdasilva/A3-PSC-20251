@@ -9,17 +9,18 @@
 - [x] Criar tabela solicitacoes
 - [x] Criar parte de notificacoes para o usuario
 - [x] Usuario que recebeu o pix pode aprovar se faz o extrato ou não
-- [] Impedir o usuario de fazer o pix, fazer ele confirmar caso
+- [x] Impedir o usuario de fazer o pix, fazer ele confirmar caso
     A conta tenha sido uma que nunca fez
     !!O valor for igual ou parecido com que ele recebeu
     A operacao ter sido recente
-- [] Exibir alerta, tem certeza que deseja enviar esse valor? voce acabou de recebelo existe uma funcao para estornar o pix basta quem mandou fazer a solicitação
+- [x] Exibir alerta, tem certeza que deseja enviar esse valor? voce acabou de recebelo existe uma funcao para estornar o pix basta quem mandou fazer a solicitação
 - [] Tirar transação normal??
 - [x] Confirmar estorno
-- [x] Cancelar estorno
-- [] Caso estorno tenha sido solicitado, bloquear esse valor da conta do usuário (conta não pode ser menor que esse valor)
-- [] Add quantia na notificacao do pix
+- [x] Cancelar estornox
+- [x] Caso estorno tenha sido solicitado, bloquear esse valor da conta do usuário (conta não pode ser menor que esse valor)
+- [x] Add quantia na notificacao do pix
 - [] Handling de input mismatch
+- [] Extrato mostra entradas e saidas, transferencias recebidas e enviadas
 
 ## Bugs
 - [] CPF não valida na transferencia, tem q validar

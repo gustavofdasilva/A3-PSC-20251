@@ -7,7 +7,9 @@ import java.sql.SQLException;
 import javax.naming.spi.DirStateFactory.Result;
 
 import bd.BaseDAO;
+import pix.estorno.EstornoDAO;
 import usuario.UsuarioDTO;
+import utils.FormatarString;
 
 public class SaqueDAO extends BaseDAO {
 
@@ -18,6 +20,17 @@ public class SaqueDAO extends BaseDAO {
             int novoId = 0;
             if (usuario.getSaldo() < quantia) {
                 System.err.println("Usuario não tem dinheiro suficiente para sacar!");
+                return;
+            }
+
+            //Checa os estornos pendentes para responder do usuário
+            EstornoDAO estornoDAO = new EstornoDAO();
+            double quantiaTotalEmAnalise = estornoDAO.checarQuantiaSolicitadaDeEstornos(usuario.getId());
+
+            if(usuario.getSaldo()-quantia < quantiaTotalEmAnalise) {
+                System.err.println("Usuario não tem dinheiro disponível para sacar!");
+                System.err.println("Quantia aguardando análise: "+FormatarString.numeroParaReais(quantiaTotalEmAnalise));
+                System.err.println("Responda todas suas solicitações de análise antes de sacar");
                 return;
             }
 

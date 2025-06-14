@@ -9,9 +9,32 @@ import bd.BaseDAO;
 import operacoes.OperacaoDTO;
 import operacoes.deposito.DepositoDTO;
 import operacoes.saque.SaqueDTO;
+import operacoes.transferencia.TransferenciaDTO;
 import usuario.UsuarioDTO;
+import usuario.notificacao.NotificacaoDAO;
+import utils.FormatarString;
 
 public class EstornoDAO extends BaseDAO {
+
+    //Checa a quantia total de estornos que foi solicitado para o usuário, para evitar de gastar o saldo sem responder ao estorno
+    public double checarQuantiaSolicitadaDeEstornos(int idUsuario) {
+        this.conn = conexaoDAO.conectar();
+        try {
+            double quantiaTotalEmAnalise = 0;
+            String sql = "SELECT SUM(t.quantia) FROM transferencia t INNER JOIN solicitacao_estorno_pix sep ON t.id = sep.id_transacao AND sep.id_usuario_solicitado = ? AND sep.status = 'AGUARDANDO'";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, idUsuario);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                quantiaTotalEmAnalise = rs.getDouble(1);
+            }
+            
+            return quantiaTotalEmAnalise;
+        } catch (SQLException e) {
+            System.out.println("Erro ao solicitar estorno pix: " + e.getMessage());
+            return 0;
+        }
+    }
 
     public void solicitarEstornoPix(int idTransacao, int idUsuarioSolicitante, int idUsuarioSolicitado) {
         this.conn = conexaoDAO.conectar();
@@ -28,16 +51,20 @@ public class EstornoDAO extends BaseDAO {
                 solicitacaoId = rs.getInt(1);
             }
 
-            String mensagemNotificao = "O usuário de n° conta "+Integer.toString(idUsuarioSolicitante)+" te enviou um pix por acidente e deseja realizar o estorno";
-            sql = "INSERT INTO notificacao (id_usuario, conteudo, referencia, tipo) VALUES (?, ?, ?, ?)";
+            double quantia = 0;
+            sql = "SELECT quantia FROM transferencia WHERE id = ?";
             stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, idUsuarioSolicitado);
-            stmt.setString(2, mensagemNotificao);
-            stmt.setInt(3, solicitacaoId);
-            stmt.setString(4, "ESTORNO_PIX");
-            stmt.execute();
+            stmt.setInt(1, idTransacao);
+            rs = stmt.executeQuery();
+            if (rs.next()) {
+                quantia = rs.getDouble("quantia");
+            }
+
+            String mensagemNotificao = "O usuário de n° conta "+Integer.toString(idUsuarioSolicitante)+" te enviou um pix, com a quantia de: "+FormatarString.numeroParaReais(quantia)+" por acidente e deseja realizar o estorno.";
+            NotificacaoDAO notificacaoDAO = new NotificacaoDAO();
+            notificacaoDAO.criarNotificacao(idUsuarioSolicitado, mensagemNotificao, solicitacaoId, "ESTORNO_PIX");
             
-            System.err.println("Estorno solicitado! O usuário que recebeu o pix será notificado");
+            System.out.println("Estorno solicitado! O usuário que recebeu o pix será notificado");
         } catch (SQLException e) {
             System.out.println("Erro ao solicitar estorno pix: " + e.getMessage());
         } finally {
@@ -85,6 +112,31 @@ public class EstornoDAO extends BaseDAO {
             if (rs.next()) {
                 quantia = rs.getDouble("quantia");
             }
+
+            conn.setAutoCommit(false);
+            int novoId = 0;
+            sql = "INSERT INTO operacao (tipo, id_usuario) VALUES (?, (SELECT sep.id_usuario_solicitado FROM solicitacao_estorno_pix sep where sep.id = ?))";
+            stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+            stmt.setString(1, "ESTORNO");
+            stmt.setInt(2, id);
+            stmt.execute();
+            rs = stmt.getGeneratedKeys();
+            if(rs.next()) {
+                novoId = rs.getInt(1);
+            }
+
+            if(novoId == 0) {
+                System.err.println("Erro ao realizar transferencia: Operacao nao registrada");
+                conn.rollback();
+                return;
+            }
+
+            sql = "INSERT INTO transferencia (id, id_usuario_destinatario, quantia) VALUES (?, (select sep.id_usuario_solicitante from solicitacao_estorno_pix sep where sep.id = ? ), ?)";
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, novoId);
+            stmt.setInt(2, id);
+            stmt.setDouble(3, quantia);
+            stmt.execute();
         
             //Diminuir o saldo do usuario solicitado
             sql = "UPDATE usuario u SET u.saldo = saldo - ? WHERE u.id = (SELECT sep.id_usuario_solicitado FROM solicitacao_estorno_pix sep WHERE u.id = sep.id_usuario_solicitado AND sep.id = ?)";
@@ -112,11 +164,23 @@ public class EstornoDAO extends BaseDAO {
             stmt = conn.prepareStatement(sql);
             stmt.setInt(1, id);
             stmt.execute();
+
+            conn.commit();
             
             System.err.println("Estorno realizado com sucesso!");
         } catch (SQLException e) {
+             try {
+                conn.rollback();
+            } catch (Exception rollbackE) {
+                System.err.println("Não foi possível realizar o rollback");
+            }
             System.out.println("Erro ao solicitar estorno pix: " + e.getMessage());
         } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (Exception e) {
+                System.err.println("Não foi possível mudar o auto commit para true");
+            }
             conexaoDAO.fecharConexao();
         }
         

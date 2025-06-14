@@ -40,6 +40,24 @@ public class NotificacaoDAO extends BaseDAO {
         }
     }
 
+    public void criarNotificacao(int idUsuario, String mensagem, int referencia, String tipo) {
+        this.conn = conexaoDAO.conectar();
+        try {
+            String sql = "INSERT INTO notificacao (id_usuario, conteudo, referencia, tipo) VALUES (?, ?, ?, ?)";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, idUsuario);
+            stmt.setString(2, mensagem);
+            stmt.setInt(3, referencia);
+            stmt.setString(4, tipo);
+            stmt.execute();
+            
+            Log.info("Notificação criada!");
+            Log.info(mensagem);
+        } catch (SQLException e) {
+            Log.error("Erro ao criar notificacao: " + e.getMessage());
+        }
+    }
+
     public void mudarStatus(int id, String novoStatus) { //NAO_LIDA / LIDA
         this.conn = conexaoDAO.conectar();
         try {

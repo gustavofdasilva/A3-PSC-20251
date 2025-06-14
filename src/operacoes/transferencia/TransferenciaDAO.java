@@ -4,14 +4,88 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import bd.BaseDAO;
 import operacoes.OperacaoDTO;
 import operacoes.deposito.DepositoDTO;
 import operacoes.saque.SaqueDTO;
+import pix.estorno.EstornoDAO;
 import usuario.UsuarioDTO;
+import utils.FormatarString;
 
 public class TransferenciaDAO extends BaseDAO {
+
+    //Retorna true se detectar como golpe, false se não
+    public boolean detectarGolpeEstornoPix(int idUsuarioRemtente, int idUsuarioDestinatario, double quantiaParaEnviar) {
+        try {   
+            //Detectar se foi pra uma conta que o usuário nunca fez
+            String sql = "SELECT COUNT(*) FROM transferencia t INNER JOIN operacao o ON t.id = o.id AND o.id_usuario = ? AND t.id_usuario_destinatario = ?;";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, idUsuarioRemtente);
+            stmt.setInt(2, idUsuarioDestinatario);
+            ResultSet rs = stmt.executeQuery();
+            int transferenciasJaRegistradas = 0;
+            if(rs.next()) {
+                transferenciasJaRegistradas = rs.getInt(1);
+            }
+
+            if (transferenciasJaRegistradas > 0) {
+                return false;
+            }
+
+            //Quantia que recebi em algum momento, foi enviada pela mesma pessoa que desejo enviar novamente OU a pessoa que vou enviar já teve algum histórico do tipo
+            
+            //O valor que está enviando é o mesmo ou parecido com algum que recebeu recentemente do mesmo usuario que desejo enviar
+            sql = "SELECT quantia FROM transferencia t INNER JOIN operacao o ON t.id = o.id AND t.id_usuario_destinatario = ? AND o.id_usuario = ?";
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, idUsuarioRemtente);
+            stmt.setInt(2, idUsuarioDestinatario);
+            rs = stmt.executeQuery();
+            while(rs.next()) {
+                double quantiaJaRecebida = rs.getDouble("quantia");
+
+                if(quantiaJaRecebida > quantiaParaEnviar-2 && quantiaJaRecebida < quantiaParaEnviar+2) { //coloca uma tolerancia para evitar ser exatamente igual as quantias. 
+                    return true;
+                }
+            }
+
+            //Analisa quais transferencias onde a quantia recebida é quase igual a quantia que vou enviar
+            String sqlDetectarContato = "SELECT COUNT(*) FROM transferencia t INNER JOIN operacao o ON o.id = t.id AND ((o.id_usuario = ? AND t.id_usuario_destinatario = ?) OR (o.id_usuario = ? AND t.id_usuario_destinatario = ?))";
+            sql = "SELECT o.id, o.id_usuario, t.id_usuario_destinatario, t.quantia, o.dt_operacao FROM transferencia t INNER JOIN operacao o ON t.id = o.id AND t.id_usuario_destinatario = ?";
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, idUsuarioRemtente);
+            rs = stmt.executeQuery();
+            while(rs.next()) {
+                if(rs.getDouble("quantia") > quantiaParaEnviar-2 && rs.getDouble("quantia") < quantiaParaEnviar+2) { //coloca uma tolerancia para evitar ser exatamente igual as quantias. 
+                    TransferenciaDTO transferenciaSuspeita = new TransferenciaDTO(
+                        "transferencia",
+                        rs.getInt("id"),
+                        rs.getInt("id_usuario"),
+                        rs.getTimestamp("dt_operacao"),
+                        rs.getInt("id_usuario_destinatario"),
+                        rs.getDouble("quantia")
+                    );
+                    PreparedStatement stmtDetectarContato = conn.prepareStatement(sqlDetectarContato);
+                    stmtDetectarContato.setInt(1, transferenciaSuspeita.getIdUsuario());
+                    stmtDetectarContato.setInt(2, idUsuarioDestinatario);
+                    stmtDetectarContato.setInt(3, transferenciaSuspeita.getIdUsuario());
+                    stmtDetectarContato.setInt(4, idUsuarioDestinatario);
+                    ResultSet rsDetectarContato = stmtDetectarContato.executeQuery();
+                    if(rsDetectarContato.next()) {
+                        if(rsDetectarContato.getInt(1) > 0) {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        } catch (SQLException e) {
+            System.out.println("Erro ao detectar golpe do estorno: " + e.getMessage());
+            return false;
+        }
+    }
 
     public void realizarTransferenciaPix(UsuarioDTO usuarioRementente, String chave, double quantia) {
         this.conn = conexaoDAO.conectar();
@@ -23,6 +97,17 @@ public class TransferenciaDAO extends BaseDAO {
                 return;
             }
 
+            //Checa os estornos pendentes para responder do usuário
+            EstornoDAO estornoDAO = new EstornoDAO();
+            double quantiaTotalEmAnalise = estornoDAO.checarQuantiaSolicitadaDeEstornos(usuarioRementente.getId());
+
+            if(usuarioRementente.getSaldo()-quantia < quantiaTotalEmAnalise) {
+                System.err.println("Usuario não tem dinheiro disponível para sacar!");
+                System.err.println("Quantia aguardando análise: "+FormatarString.numeroParaReais(quantiaTotalEmAnalise));
+                System.err.println("Responda todas suas solicitações de análise antes de sacar");
+                return;
+            }
+
             //Obtem id do destinatario
             String sql = "SELECT id_usuario FROM chave_pix WHERE chave = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);
@@ -31,6 +116,29 @@ public class TransferenciaDAO extends BaseDAO {
             int idUsuarioDestinatario=0;
             if(rs.next()) {
                 idUsuarioDestinatario = rs.getInt("id_usuario");
+            }
+
+            boolean detectouGolpe = detectarGolpeEstornoPix(usuarioRementente.getId(), idUsuarioDestinatario, quantia);
+            if (detectouGolpe) {
+                System.out.println(" ");
+                System.out.println("***GOLPE DETECTADO***");
+                System.out.println("Nossos sistemas impediram a transação por detectar uma suspeita de golpe");
+                System.out.println("Golpe: Estorno do pix");
+                System.out.println("Explicação: O golpista faz um pix para a vítima e diz ser por acidente, tenta negociar uma transferência para voltar o valor e depois faz o estorno do mesmo, recebendo o valor duas vezes");
+                System.out.println("LEMBRETE: O sistema bancário possui a função estorno do pix, caso o pix tenha sido feito por acidente, a pessoa poderá te contatar por essa ferramenta, evitando golpes e fraudes");
+                System.out.println("SEMRE UTILIZE A FUNÇÃO ESTORNO PARA CASOS COMO ESSE");
+                System.out.println(" ");
+                System.out.println("*Caso tenha sido uma detecção errada, desconsidere essa mensagem");
+                System.out.println(" ");
+                System.out.println("Deseja continuar com a transação?");
+                System.out.println("(S) Continuar");
+                System.out.println("(N) Cancelar");
+                Scanner scanner = new Scanner(System.in);
+                String comando = scanner.nextLine();
+                if (!comando.equalsIgnoreCase("s")) {
+                    System.out.println("Transferência cancelada");
+                    return;
+                }
             }
 
             //Inicia transação para, se caso falhe, não grave logs lixo no banco de dados
@@ -98,6 +206,18 @@ public class TransferenciaDAO extends BaseDAO {
 
             if (usuarioRementente.getSaldo() < quantia) {
                 System.err.println("Usuario não tem dinheiro suficiente para transferir!");
+                return;
+            }
+
+            //Checa os estornos pendentes para responder do usuário
+            EstornoDAO estornoDAO = new EstornoDAO();
+            double quantiaTotalEmAnalise = estornoDAO.checarQuantiaSolicitadaDeEstornos(usuarioRementente.getId());
+
+
+            if(usuarioRementente.getSaldo()-quantia < quantiaTotalEmAnalise) {
+                System.err.println("Usuario não tem dinheiro disponível para sacar!");
+                System.err.println("Quantia aguardando análise: "+FormatarString.numeroParaReais(quantiaTotalEmAnalise));
+                System.err.println("Responda todas suas solicitações de análise antes de sacar");
                 return;
             }
 

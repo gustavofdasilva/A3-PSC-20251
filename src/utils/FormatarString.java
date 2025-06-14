@@ -6,6 +6,9 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 public class FormatarString {
+    // Private constructor to prevent instantiation
+    private FormatarString() {}
+
     public static String numeroParaReais(double valor) {
         NumberFormat formato = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
         return formato.format(valor);
