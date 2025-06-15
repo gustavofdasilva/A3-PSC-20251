@@ -7,14 +7,17 @@ import java.sql.SQLException;
 import utils.Log;
 
 public class ConexaoDAO {
-    private String url = "jdbc:mysql://localhost:3306/db_a3";
     private String user = "root";
     private String pass = "root";
+    private String host = "localhost";
+    private String port = "3306";
+    private String dbName = "db_a3";
     
     private Connection conn;
 
     public Connection conectar() {
         try {
+            String url = "jdbc:mysql://"+host+":"+port+"/"+dbName;
             conn = DriverManager.getConnection(url, user, pass);
             Log.info("Conexão estabelecida com sucesso!");
         } catch (SQLException e) {

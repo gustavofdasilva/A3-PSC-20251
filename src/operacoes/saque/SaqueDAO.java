@@ -57,7 +57,7 @@ public class SaqueDAO extends BaseDAO {
             stmt = conn.prepareStatement(sql);
             stmt.setDouble(1, quantia);
             stmt.setInt(2, usuario.getId());
-            stmt.execute();
+            stmt.executeUpdate();
 
 
             //Verificar novo saldo
@@ -77,6 +77,8 @@ public class SaqueDAO extends BaseDAO {
             stmt.setDouble(3, quantia);
             stmt.execute();
 
+            stmt.close();
+
             conn.commit();
             System.out.println("Saque realizado com sucesso!");
         } catch (SQLException e) {
@@ -93,7 +95,6 @@ public class SaqueDAO extends BaseDAO {
             } catch (Exception e) {
                 System.err.println("Não foi possível mudar o auto commit para true");
             }
-            conexaoDAO.fecharConexao();
         }
     }
 

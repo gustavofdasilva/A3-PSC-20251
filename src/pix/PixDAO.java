@@ -31,6 +31,8 @@ public class PixDAO extends BaseDAO {
             stmt.setString(3, pixDTO.getChave());
             stmt.execute();
 
+            stmt.close();
+
             System.out.println("Chave criada com sucesso!");
         } catch (SQLException e) {
             if (e.getSQLState() != null && (e.getSQLState().equals("23505") || e.getMessage().toLowerCase().contains("duplicate"))) {
@@ -38,9 +40,6 @@ public class PixDAO extends BaseDAO {
             } else {
                 System.out.println("Erro ao criar chave: " + e.getMessage());
             }
-            return; 
-        } finally {
-            conexaoDAO.fecharConexao();
         }
     }
 
@@ -62,13 +61,13 @@ public class PixDAO extends BaseDAO {
                 chaves.add(pixDTO);
             }
 
+            stmt.close();
+
             return chaves;
         } catch (SQLException e) {
             System.out.println("Erro ao buscar chaves: " + e.getMessage());
             return null; 
-        } finally {
-            conexaoDAO.fecharConexao();
-        }
+        } 
     }
 
 

@@ -78,7 +78,7 @@ public class OperacaoDAO extends BaseDAO {
                 deposito.setContexto(OperacaoDTO.Contexto.ENTRADA);
                 operacoes.add(deposito);
             }
-
+            stmt.close();
             
             operacoes.sort((o1, o2) -> o2.getDtOperacao().compareTo(o1.getDtOperacao()));
 
@@ -86,8 +86,6 @@ public class OperacaoDAO extends BaseDAO {
         } catch (SQLException e) {
             System.out.println("Erro ao realizar transferencia: " + e.getMessage());
             return null; 
-        } finally {
-            conexaoDAO.fecharConexao();
         }
     }
 

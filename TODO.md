@@ -14,27 +14,35 @@
     !!O valor for igual ou parecido com que ele recebeu
     A operacao ter sido recente
 - [x] Exibir alerta, tem certeza que deseja enviar esse valor? voce acabou de recebelo existe uma funcao para estornar o pix basta quem mandou fazer a solicitação
-- [] Tirar transação normal??
 - [x] Confirmar estorno
 - [x] Cancelar estornox
 - [x] Caso estorno tenha sido solicitado, bloquear esse valor da conta do usuário (conta não pode ser menor que esse valor)
 - [x] Add quantia na notificacao do pix
-- [] Handling de input mismatch
-- [] Extrato mostra entradas e saidas, transferencias recebidas e enviadas
+- [x] Extrato mostra entradas e saidas, transferencias recebidas e enviadas
+- [] Tirar transação normal??
+- [x] Handling de input mismatch
+- [x] tudo que tem data ordernar por mais recente
+    Extrato 
+    Notificacoes
+    Transacoes pix
+    Solicitação Estornos
 
 ## Bugs
-- [] CPF não valida na transferencia, tem q validar
-- [] não da pra digitar numero quebrado, InputMismatch
+- [x] CPF não valida na transferencia, tem q validar
+- [x] não da pra digitar numero quebrado, InputMismatch
 
 ## Firulas
 - [x] Criar hash da chave pix
 - [] Ver se o CPF é valido
-- [] Mostrar extrato por dia, mes e tal
+- [~] Mostrar extrato por dia, mes e tal
 - [] Pagar boleto
 - [] Criptografar senha
 - [x] Formatar para R$ no Extrato
-- [] Rever parte do comandos pix, usuário logado?
-- [] Mostrar que é vazio pros array lists
+- [x] Mostrar que é vazio pros array lists
 - [] Cancelar no meio do processo se digitar cancelar
 - [] Adicionar saldo atual quando for inputar quantia
 - [] Mostrar para qual chave foi enviada a transacao pix
+
+-FINAL
+-Scripts de riação do banco
+-Documentar

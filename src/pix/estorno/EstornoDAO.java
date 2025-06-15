@@ -29,6 +29,7 @@ public class EstornoDAO extends BaseDAO {
                 quantiaTotalEmAnalise = rs.getDouble(1);
             }
             
+            stmt.close();
             return quantiaTotalEmAnalise;
         } catch (SQLException e) {
             System.out.println("Erro ao solicitar estorno pix: " + e.getMessage());
@@ -39,14 +40,28 @@ public class EstornoDAO extends BaseDAO {
     public void solicitarEstornoPix(int idTransacao, int idUsuarioSolicitante, int idUsuarioSolicitado) {
         this.conn = conexaoDAO.conectar();
         try {
+
+            String sql = "SELECT COUNT(*) FROM solicitacao_estorno_pix WHERE id_transacao = ? AND id_usuario_solicitante = ? AND id_usuario_solicitado = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, idTransacao);
+            stmt.setInt(2, idUsuarioSolicitante);
+            stmt.setInt(3, idUsuarioSolicitado);
+            ResultSet rs = stmt.executeQuery();
+            if(rs.next()) {
+                if(rs.getInt(1) > 0) {
+                    System.out.println("Solicitacao já criada!");
+                    return;
+                }
+            }
+            
             int solicitacaoId = 0;
-            String sql = "INSERT INTO solicitacao_estorno_pix (id_transacao, id_usuario_solicitante, id_usuario_solicitado) VALUES (?, ?, ?)";
-            PreparedStatement stmt = conn.prepareStatement(sql,PreparedStatement.RETURN_GENERATED_KEYS);
+            sql = "INSERT INTO solicitacao_estorno_pix (id_transacao, id_usuario_solicitante, id_usuario_solicitado) VALUES (?, ?, ?)";
+            stmt = conn.prepareStatement(sql,PreparedStatement.RETURN_GENERATED_KEYS);
             stmt.setInt(1, idTransacao);
             stmt.setInt(2, idUsuarioSolicitante);
             stmt.setInt(3, idUsuarioSolicitado);
             stmt.execute();
-            ResultSet rs = stmt.getGeneratedKeys();
+            rs = stmt.getGeneratedKeys();
             if(rs.next()) {
                 solicitacaoId = rs.getInt(1);
             }
@@ -63,19 +78,18 @@ public class EstornoDAO extends BaseDAO {
             String mensagemNotificao = "O usuário de n° conta "+Integer.toString(idUsuarioSolicitante)+" te enviou um pix, com a quantia de: "+FormatarString.numeroParaReais(quantia)+" por acidente e deseja realizar o estorno.";
             NotificacaoDAO notificacaoDAO = new NotificacaoDAO();
             notificacaoDAO.criarNotificacao(idUsuarioSolicitado, mensagemNotificao, solicitacaoId, "ESTORNO_PIX");
-            
+            stmt.close();
+
             System.out.println("Estorno solicitado! O usuário que recebeu o pix será notificado");
         } catch (SQLException e) {
             System.out.println("Erro ao solicitar estorno pix: " + e.getMessage());
-        } finally {
-            conexaoDAO.fecharConexao();
         }
     }
 
     public ArrayList<EstornoDTO> buscarSolicitacoesDoIdUsuario(int idUsuario) {
         this.conn = conexaoDAO.conectar();
         try {
-            String sql = "SELECT sep.status, sep.dt_solicitacao, o.dt_operacao, t.quantia, t.id_usuario_destinatario FROM solicitacao_estorno_pix sep INNER JOIN transferencia t ON sep.id_transacao = t.id INNER JOIN operacao o ON sep.id_transacao = o.id AND sep.id_usuario_solicitante = ?;";
+            String sql = "SELECT sep.status, sep.dt_solicitacao, o.dt_operacao, t.quantia, t.id_usuario_destinatario FROM solicitacao_estorno_pix sep INNER JOIN transferencia t ON sep.id_transacao = t.id INNER JOIN operacao o ON sep.id_transacao = o.id AND sep.id_usuario_solicitante = ? ORDER BY o.dt_operacao DESC;";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setInt(1, idUsuario);
             ResultSet rs = stmt.executeQuery();
@@ -91,12 +105,11 @@ public class EstornoDAO extends BaseDAO {
                 estornos.add(estorno);
             }
 
+            stmt.close();
             return estornos;
         } catch (SQLException e) {
             System.out.println("Erro ao buscar solicitacoes: " + e.getMessage());
             return null;
-        } finally {
-            conexaoDAO.fecharConexao();
         }
     }
 
@@ -143,28 +156,29 @@ public class EstornoDAO extends BaseDAO {
             stmt = conn.prepareStatement(sql);
             stmt.setDouble(1, quantia);
             stmt.setInt(2, id);
-            stmt.execute();
+            stmt.executeUpdate();
 
             //Aumentar saldo do usuario solcitante
             sql = "UPDATE usuario u SET u.saldo = saldo + ? WHERE u.id = (SELECT sep.id_usuario_solicitante FROM solicitacao_estorno_pix sep WHERE u.id = sep.id_usuario_solicitante AND sep.id = ?)";
             stmt = conn.prepareStatement(sql);
             stmt.setDouble(1, quantia);
             stmt.setInt(2, id);
-            stmt.execute();
+            stmt.executeUpdate();
 
             //Mudar status da solicitacao para APROVADO
             sql = "UPDATE solicitacao_estorno_pix sep SET status = ? WHERE id = ?";
             stmt = conn.prepareStatement(sql);
             stmt.setString(1, "APROVADO");
             stmt.setInt(2, id);
-            stmt.execute();
+            stmt.executeUpdate();
 
             //Excluir notificacao para o usuario
             sql = "DELETE FROM notificacao WHERE referencia = ?";
             stmt = conn.prepareStatement(sql);
             stmt.setInt(1, id);
-            stmt.execute();
+            stmt.executeUpdate();
 
+            stmt.close();
             conn.commit();
             
             System.err.println("Estorno realizado com sucesso!");
@@ -181,7 +195,6 @@ public class EstornoDAO extends BaseDAO {
             } catch (Exception e) {
                 System.err.println("Não foi possível mudar o auto commit para true");
             }
-            conexaoDAO.fecharConexao();
         }
         
     }
@@ -200,13 +213,12 @@ public class EstornoDAO extends BaseDAO {
             sql = "DELETE FROM notificacao WHERE referencia = ?";
             stmt = conn.prepareStatement(sql);
             stmt.setInt(1, id);
-            stmt.execute();
-            
+            stmt.executeUpdate();
+
+            stmt.close();
             System.err.println("Estorno recusado com sucesso!");
         } catch (SQLException e) {
             System.out.println("Erro ao solicitar estorno pix: " + e.getMessage());
-        } finally {
-            conexaoDAO.fecharConexao();
         }
         
     }

@@ -11,10 +11,19 @@ import operacoes.OperacaoDTO;
 import operacoes.deposito.DepositoDTO;
 import operacoes.saque.SaqueDTO;
 import pix.estorno.EstornoDAO;
+import usuario.UsuarioDAO;
 import usuario.UsuarioDTO;
 import utils.FormatarString;
 
 public class TransferenciaDAO extends BaseDAO {
+
+    public boolean detectarUsuarioSuspeito(int idUsuario) {
+        UsuarioDAO usuarioDAO = new UsuarioDAO();
+        int denuncias = usuarioDAO.buscarNumeroDeDenuncias(idUsuario);
+        System.out.println("USUÁRIO: "+idUsuario);
+        System.out.println("DENUNCIAS DO USUÁRIO: "+denuncias);
+        return denuncias >= 5;
+    }
 
     //Retorna true se detectar como golpe, false se não
     public boolean detectarGolpeEstornoPix(int idUsuarioRemtente, int idUsuarioDestinatario, double quantiaParaEnviar) {
@@ -80,6 +89,8 @@ public class TransferenciaDAO extends BaseDAO {
                 }
             }
 
+            stmt.close();
+
             return false;
         } catch (SQLException e) {
             System.out.println("Erro ao detectar golpe do estorno: " + e.getMessage());
@@ -118,6 +129,11 @@ public class TransferenciaDAO extends BaseDAO {
                 idUsuarioDestinatario = rs.getInt("id_usuario");
             }
 
+            if(idUsuarioDestinatario == 0) {
+                System.out.println("Usuário não encontrado!");
+                return;
+            }
+
             boolean detectouGolpe = detectarGolpeEstornoPix(usuarioRementente.getId(), idUsuarioDestinatario, quantia);
             if (detectouGolpe) {
                 System.out.println(" ");
@@ -129,6 +145,25 @@ public class TransferenciaDAO extends BaseDAO {
                 System.out.println("SEMRE UTILIZE A FUNÇÃO ESTORNO PARA CASOS COMO ESSE");
                 System.out.println(" ");
                 System.out.println("*Caso tenha sido uma detecção errada, desconsidere essa mensagem");
+                System.out.println(" ");
+                System.out.println("Deseja continuar com a transação?");
+                System.out.println("(S) Continuar");
+                System.out.println("(N) Cancelar");
+                Scanner scanner = new Scanner(System.in);
+                String comando = scanner.nextLine();
+                if (!comando.equalsIgnoreCase("s")) {
+                    System.out.println("Transferência cancelada");
+                    return;
+                }
+            }
+
+            boolean detectouUsuarioSuspeito = detectarUsuarioSuspeito(idUsuarioDestinatario);
+            if (detectouUsuarioSuspeito) {
+                System.out.println(" ");
+                System.out.println("***USUÁRIO SUSPEITO DETECTADO***");
+                System.out.println("Nossos sistemas impediram a transação por detectar um usuário suspeito");
+                System.out.println("O usuário que você está enviando o pix foi denunciado várias vezes no nosso sistema");
+                System.out.println("Prossiga apenas se confiar no usuário");
                 System.out.println(" ");
                 System.out.println("Deseja continuar com a transação?");
                 System.out.println("(S) Continuar");
@@ -171,13 +206,15 @@ public class TransferenciaDAO extends BaseDAO {
             stmt = conn.prepareStatement(sql);
             stmt.setDouble(1, quantia);
             stmt.setInt(2, idUsuarioDestinatario);
-            stmt.execute();
+            stmt.executeUpdate();
 
             sql = "UPDATE usuario SET saldo = saldo - ? WHERE id = ?";
             stmt = conn.prepareStatement(sql);
             stmt.setDouble(1, quantia);
             stmt.setInt(2, usuarioRementente.getId());
-            stmt.execute();
+            stmt.executeUpdate();
+
+            stmt.close();
             
             conn.commit();
             System.out.println("Transferencia realizada com sucesso!");
@@ -195,7 +232,6 @@ public class TransferenciaDAO extends BaseDAO {
             } catch (Exception e) {
                 System.err.println("Não foi possível mudar o auto commit para true");
             }
-            conexaoDAO.fecharConexao();
         }
     }
 
@@ -231,6 +267,53 @@ public class TransferenciaDAO extends BaseDAO {
                 idUsuarioDestinatario = rs.getInt(1);
             }
 
+            if(idUsuarioDestinatario == 0) {
+                System.out.println("Usuário não encontrado!");
+                return;
+            }
+
+            boolean detectouGolpe = detectarGolpeEstornoPix(usuarioRementente.getId(), idUsuarioDestinatario, quantia);
+            if (detectouGolpe) {
+                System.out.println(" ");
+                System.out.println("***GOLPE DETECTADO***");
+                System.out.println("Nossos sistemas impediram a transação por detectar uma suspeita de golpe");
+                System.out.println("Golpe: Estorno do pix");
+                System.out.println("Explicação: O golpista faz um pix para a vítima e diz ser por acidente, tenta negociar uma transferência para voltar o valor e depois faz o estorno do mesmo, recebendo o valor duas vezes");
+                System.out.println("LEMBRETE: O sistema bancário possui a função estorno do pix, caso o pix tenha sido feito por acidente, a pessoa poderá te contatar por essa ferramenta, evitando golpes e fraudes");
+                System.out.println("SEMRE UTILIZE A FUNÇÃO ESTORNO PARA CASOS COMO ESSE");
+                System.out.println(" ");
+                System.out.println("*Caso tenha sido uma detecção errada, desconsidere essa mensagem");
+                System.out.println(" ");
+                System.out.println("Deseja continuar com a transação?");
+                System.out.println("(S) Continuar");
+                System.out.println("(N) Cancelar");
+                Scanner scanner = new Scanner(System.in);
+                String comando = scanner.nextLine();
+                if (!comando.equalsIgnoreCase("s")) {
+                    System.out.println("Transferência cancelada");
+                    return;
+                }
+            }
+
+            boolean detectouUsuarioSuspeito = detectarUsuarioSuspeito(idUsuarioDestinatario);
+            if (detectouUsuarioSuspeito) {
+                System.out.println(" ");
+                System.out.println("***USUÁRIO SUSPEITO DETECTADO***");
+                System.out.println("Nossos sistemas impediram a transação por detectar um usuário suspeito");
+                System.out.println("O usuário que você está enviando o pix foi denunciado várias vezes no nosso sistema");
+                System.out.println("Prossiga apenas se confiar no usuário");
+                System.out.println(" ");
+                System.out.println("Deseja continuar com a transação?");
+                System.out.println("(S) Continuar");
+                System.out.println("(N) Cancelar");
+                Scanner scanner = new Scanner(System.in);
+                String comando = scanner.nextLine();
+                if (!comando.equalsIgnoreCase("s")) {
+                    System.out.println("Transferência cancelada");
+                    return;
+                }
+            }
+
             //Inicia transação para, se caso falhe, não grave logs lixo no banco de dados
             conn.setAutoCommit(false);
             sql = "INSERT INTO operacao (tipo, id_usuario) VALUES (?, ?)";
@@ -261,13 +344,15 @@ public class TransferenciaDAO extends BaseDAO {
             stmt = conn.prepareStatement(sql);
             stmt.setDouble(1, quantia);
             stmt.setInt(2, idUsuarioDestinatario);
-            stmt.execute();
+            stmt.executeUpdate();
 
             sql = "UPDATE usuario SET saldo = saldo - ? WHERE id = ?";
             stmt = conn.prepareStatement(sql);
             stmt.setDouble(1, quantia);
             stmt.setInt(2, usuarioRementente.getId());
-            stmt.execute();
+            stmt.executeUpdate();
+
+            stmt.close();
             
             conn.commit();
             System.out.println("Transferencia realizada com sucesso!");
@@ -285,7 +370,6 @@ public class TransferenciaDAO extends BaseDAO {
             } catch (Exception e) {
                 System.err.println("Não foi possível mudar o auto commit para true");
             }
-            conexaoDAO.fecharConexao();
         }
     }
 
@@ -309,13 +393,13 @@ public class TransferenciaDAO extends BaseDAO {
             
                 operacoes.add(transferencia);
             }
+
+            stmt.close();
             
             return operacoes;
         } catch (SQLException e) {
             System.out.println("Erro ao buscar transferencias pix: " + e.getMessage());
             return null; 
-        } finally {
-            conexaoDAO.fecharConexao();
         }
     }
 }

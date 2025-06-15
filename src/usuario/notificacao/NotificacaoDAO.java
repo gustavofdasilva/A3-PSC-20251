@@ -31,6 +31,8 @@ public class NotificacaoDAO extends BaseDAO {
                 notificacoes.add(notificacao);
             }
 
+            stmt.close();
+
             return notificacoes;
         } catch (SQLException e) {
             System.out.println("Erro ao buscar notificacoes: " + e.getMessage());
@@ -50,6 +52,8 @@ public class NotificacaoDAO extends BaseDAO {
             stmt.setInt(3, referencia);
             stmt.setString(4, tipo);
             stmt.execute();
+
+            stmt.close();
             
             Log.info("Notificação criada!");
             Log.info(mensagem);
@@ -67,13 +71,13 @@ public class NotificacaoDAO extends BaseDAO {
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, novoStatus);
             stmt.setInt(2, id);
-            stmt.execute();
+            stmt.executeUpdate();
+
+            stmt.close();
             
             Log.info("Status da notificação alterado!");
         } catch (SQLException e) {
             System.out.println("Erro ao mudar status da notificacao: " + e.getMessage());
-        } finally {
-            conexaoDAO.fecharConexao();
         }
     }
 }
