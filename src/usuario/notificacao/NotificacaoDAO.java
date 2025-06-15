@@ -65,8 +65,7 @@ public class NotificacaoDAO extends BaseDAO {
     public void mudarStatus(int id, String novoStatus) { //NAO_LIDA / LIDA
         this.conn = conexaoDAO.conectar();
         try {
-            
-            ArrayList<NotificacaoDTO> notificacoes = new ArrayList<>();
+        
             String sql = "UPDATE notificacao SET status = ? WHERE id = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, novoStatus);

@@ -7,8 +7,6 @@ import java.util.Scanner;
 import operacoes.deposito.DepositoDAO;
 import operacoes.saque.SaqueDAO;
 import operacoes.transferencia.TransferenciaDAO;
-import operacoes.transferencia.TransferenciaDTO;
-import pix.estorno.EstornoDAO;
 import usuario.Extrato;
 import usuario.UsuarioDAO;
 import usuario.UsuarioDTO;

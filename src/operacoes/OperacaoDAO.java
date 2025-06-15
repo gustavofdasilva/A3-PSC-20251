@@ -4,14 +4,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
-
 import bd.BaseDAO;
 import operacoes.deposito.DepositoDTO;
 import operacoes.saque.SaqueDTO;
 import operacoes.transferencia.TransferenciaDTO;
-import usuario.UsuarioDTO;
-
 public class OperacaoDAO extends BaseDAO {
 
     public ArrayList<OperacaoDTO> buscarOperacoesPorId(int idUsuario) {

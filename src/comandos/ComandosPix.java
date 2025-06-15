@@ -4,17 +4,12 @@ import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.UUID;
-
-import operacoes.deposito.DepositoDAO;
-import operacoes.saque.SaqueDAO;
 import operacoes.transferencia.TransferenciaDAO;
 import operacoes.transferencia.TransferenciaDTO;
 import pix.PixDAO;
 import pix.PixDTO;
 import pix.estorno.EstornoDAO;
 import pix.estorno.EstornoDTO;
-import usuario.Extrato;
-import usuario.UsuarioDAO;
 import usuario.UsuarioDTO;
 import utils.FormatarString;
 import utils.Log;

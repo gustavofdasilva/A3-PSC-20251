@@ -4,8 +4,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javax.naming.spi.DirStateFactory.Result;
-
 import bd.BaseDAO;
 import pix.estorno.EstornoDAO;
 import usuario.UsuarioDTO;

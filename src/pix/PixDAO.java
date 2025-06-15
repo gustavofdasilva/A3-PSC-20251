@@ -19,7 +19,7 @@ public class PixDAO extends BaseDAO {
             while (rs.next()) {
                 String tipo = rs.getString("tipo");
                 if (tipo.equalsIgnoreCase(pixDTO.getTipo())) {
-                    System.err.printf("Você já tem uma chave pix do tipo %s\n",tipo);
+                    System.err.printf("Você já tem uma chave pix do tipo %s%n",tipo);
                     return;
                 }
             }

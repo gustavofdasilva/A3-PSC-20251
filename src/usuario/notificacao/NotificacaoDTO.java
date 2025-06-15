@@ -57,11 +57,9 @@ public class NotificacaoDTO {
         this.status = status;
     }
 
-
     public Timestamp getDtCriada() {
         return dtCriada;
     }
-
 
     public void setDtCriada(Timestamp dtCriada) {
         this.dtCriada = dtCriada;

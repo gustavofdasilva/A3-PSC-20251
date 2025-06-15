@@ -1,5 +1,5 @@
 # Para fazer
-[] Simular operações comuns bancárias
+[ ] Simular operações comuns bancárias
 - [x] Transferir
 - [x] Depositar
 - [x] Sacar
@@ -19,7 +19,7 @@
 - [x] Caso estorno tenha sido solicitado, bloquear esse valor da conta do usuário (conta não pode ser menor que esse valor)
 - [x] Add quantia na notificacao do pix
 - [x] Extrato mostra entradas e saidas, transferencias recebidas e enviadas
-- [] Tirar transação normal??
+- [ ] Tirar transação normal??
 - [x] Handling de input mismatch
 - [x] tudo que tem data ordernar por mais recente
     Extrato 
@@ -33,16 +33,12 @@
 
 ## Firulas
 - [x] Criar hash da chave pix
-- [] Ver se o CPF é valido
+- [ ] Ver se o CPF é valido
 - [~] Mostrar extrato por dia, mes e tal
-- [] Pagar boleto
-- [] Criptografar senha
+- [ ] Pagar boleto
+- [ ] Criptografar senha
 - [x] Formatar para R$ no Extrato
 - [x] Mostrar que é vazio pros array lists
-- [] Cancelar no meio do processo se digitar cancelar
-- [] Adicionar saldo atual quando for inputar quantia
-- [] Mostrar para qual chave foi enviada a transacao pix
-
--FINAL
--Scripts de riação do banco
--Documentar
+- [ ] Cancelar no meio do processo se digitar cancelar
+- [ ] Adicionar saldo atual quando for inputar quantia
+- [ ] Mostrar para qual chave foi enviada a transacao pix

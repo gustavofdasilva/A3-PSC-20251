@@ -7,9 +7,6 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import bd.BaseDAO;
-import operacoes.OperacaoDTO;
-import operacoes.deposito.DepositoDTO;
-import operacoes.saque.SaqueDTO;
 import pix.estorno.EstornoDAO;
 import usuario.UsuarioDAO;
 import usuario.UsuarioDTO;
@@ -153,8 +150,10 @@ public class TransferenciaDAO extends BaseDAO {
                 String comando = scanner.nextLine();
                 if (!comando.equalsIgnoreCase("s")) {
                     System.out.println("Transferência cancelada");
+                    scanner.close();
                     return;
                 }
+                scanner.close();
             }
 
             boolean detectouUsuarioSuspeito = detectarUsuarioSuspeito(idUsuarioDestinatario);
@@ -172,8 +171,10 @@ public class TransferenciaDAO extends BaseDAO {
                 String comando = scanner.nextLine();
                 if (!comando.equalsIgnoreCase("s")) {
                     System.out.println("Transferência cancelada");
+                    scanner.close();
                     return;
                 }
+                scanner.close();
             }
 
             //Inicia transação para, se caso falhe, não grave logs lixo no banco de dados
@@ -291,8 +292,10 @@ public class TransferenciaDAO extends BaseDAO {
                 String comando = scanner.nextLine();
                 if (!comando.equalsIgnoreCase("s")) {
                     System.out.println("Transferência cancelada");
+                    scanner.close();
                     return;
                 }
+                scanner.close();
             }
 
             boolean detectouUsuarioSuspeito = detectarUsuarioSuspeito(idUsuarioDestinatario);
@@ -310,8 +313,10 @@ public class TransferenciaDAO extends BaseDAO {
                 String comando = scanner.nextLine();
                 if (!comando.equalsIgnoreCase("s")) {
                     System.out.println("Transferência cancelada");
+                    scanner.close();
                     return;
                 }
+                scanner.close();
             }
 
             //Inicia transação para, se caso falhe, não grave logs lixo no banco de dados

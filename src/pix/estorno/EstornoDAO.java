@@ -6,11 +6,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import bd.BaseDAO;
-import operacoes.OperacaoDTO;
-import operacoes.deposito.DepositoDTO;
-import operacoes.saque.SaqueDTO;
-import operacoes.transferencia.TransferenciaDTO;
-import usuario.UsuarioDTO;
 import usuario.notificacao.NotificacaoDAO;
 import utils.FormatarString;
 
