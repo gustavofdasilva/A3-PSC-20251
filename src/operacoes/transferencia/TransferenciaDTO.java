@@ -5,7 +5,6 @@ import operacoes.OperacaoDTO;
 
 public class TransferenciaDTO extends OperacaoDTO {
 
-    private int idUsuarioRemetente;
     private int idUsuarioDestinatario;
     private double quantia;
 
@@ -21,14 +20,6 @@ public class TransferenciaDTO extends OperacaoDTO {
 
     public void setQuantia(double quantia) {
         this.quantia = quantia;
-    }
-
-    public int getIdUsuarioRemetente() {
-        return idUsuarioRemetente;
-    }
-
-    public void setIdUsuarioRemetente(int idUsuarioRemetente) {
-        this.idUsuarioRemetente = idUsuarioRemetente;
     }
 
     public int getIdUsuarioDestinatario() {

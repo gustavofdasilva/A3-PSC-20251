@@ -14,6 +14,7 @@ import usuario.notificacao.NotificacaoDAO;
 import usuario.notificacao.NotificacaoDTO;
 import utils.FormatarString;
 import utils.Log;
+import utils.ValidarCampos;
 
 public class ComandosUsuario extends Comandos {
 
@@ -246,6 +247,10 @@ public class ComandosUsuario extends Comandos {
             String senha = scanner.nextLine();
             System.out.print("Digite o email do usuário: ");
             String email = scanner.nextLine();
+            if(!ValidarCampos.emailValido(email)) {
+                System.out.println("Email inválido!");
+                return;
+            }
             System.out.print("Digite o telefone (Apenas digitos e com DDD) do usuário: ");
             String telefone = scanner.nextLine();
             try {
@@ -254,12 +259,20 @@ public class ComandosUsuario extends Comandos {
                 System.out.println("Digite apenas números para o telefone!");
                 return;
             }
+            if(telefone.length() < 10) {
+                System.out.println("Número inválido!");
+                return;
+            }
             System.out.print("Digite o CPF do usuário (Apenas digitos): ");
             String cpf = scanner.nextLine();
             try {
                 Long.parseLong(cpf);
             } catch (Exception e) {
                 System.out.println("Digite apenas números para o cpf!");
+                return;
+            }
+            if(!ValidarCampos.cpfValido(cpf)) {
+                System.out.println("CPF inválido!");
                 return;
             }
             System.out.print("Digite o banco do usuário: ");

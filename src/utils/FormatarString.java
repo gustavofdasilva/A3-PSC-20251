@@ -10,7 +10,7 @@ public class FormatarString {
     private FormatarString() {}
 
     public static String numeroParaReais(double valor) {
-        NumberFormat formato = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
+        NumberFormat formato = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("pt-BR"));
         return formato.format(valor);
     }
     

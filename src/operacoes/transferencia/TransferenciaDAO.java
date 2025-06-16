@@ -17,8 +17,6 @@ public class TransferenciaDAO extends BaseDAO {
     public boolean detectarUsuarioSuspeito(int idUsuario) {
         UsuarioDAO usuarioDAO = new UsuarioDAO();
         int denuncias = usuarioDAO.buscarNumeroDeDenuncias(idUsuario);
-        System.out.println("USUÁRIO: "+idUsuario);
-        System.out.println("DENUNCIAS DO USUÁRIO: "+denuncias);
         return denuncias >= 5;
     }
 
@@ -150,10 +148,8 @@ public class TransferenciaDAO extends BaseDAO {
                 String comando = scanner.nextLine();
                 if (!comando.equalsIgnoreCase("s")) {
                     System.out.println("Transferência cancelada");
-                    scanner.close();
                     return;
                 }
-                scanner.close();
             }
 
             boolean detectouUsuarioSuspeito = detectarUsuarioSuspeito(idUsuarioDestinatario);
@@ -171,10 +167,8 @@ public class TransferenciaDAO extends BaseDAO {
                 String comando = scanner.nextLine();
                 if (!comando.equalsIgnoreCase("s")) {
                     System.out.println("Transferência cancelada");
-                    scanner.close();
                     return;
                 }
-                scanner.close();
             }
 
             //Inicia transação para, se caso falhe, não grave logs lixo no banco de dados
@@ -291,11 +285,10 @@ public class TransferenciaDAO extends BaseDAO {
                 Scanner scanner = new Scanner(System.in);
                 String comando = scanner.nextLine();
                 if (!comando.equalsIgnoreCase("s")) {
-                    System.out.println("Transferência cancelada");
-                    scanner.close();
+                    System.out.println("Transferência cancelada");    
                     return;
                 }
-                scanner.close();
+                
             }
 
             boolean detectouUsuarioSuspeito = detectarUsuarioSuspeito(idUsuarioDestinatario);
@@ -313,10 +306,8 @@ public class TransferenciaDAO extends BaseDAO {
                 String comando = scanner.nextLine();
                 if (!comando.equalsIgnoreCase("s")) {
                     System.out.println("Transferência cancelada");
-                    scanner.close();
                     return;
                 }
-                scanner.close();
             }
 
             //Inicia transação para, se caso falhe, não grave logs lixo no banco de dados
